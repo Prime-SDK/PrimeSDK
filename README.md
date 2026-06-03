@@ -1,7 +1,5 @@
 ## Cross platform multipurpose plugin for Unity
 
-<img width="1202" height="623" alt="image" src="https://github.com/user-attachments/assets/c74686bd-4daf-4f16-8d1e-acf6749010bd" />
-
 ## About PrimeSDK
 
 Achieve automation and readability of your code by employing PrimeSDK API as a replacement to many different plugins.
