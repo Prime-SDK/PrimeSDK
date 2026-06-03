@@ -22,7 +22,6 @@ https://github.com/Prime-SDK/PrimeSDK.git
 
 After installation, you will be able to see `PrimeSDK` in the Editor window.
 
-<img width="219" height="112" alt="image" src="https://github.com/user-attachments/assets/b3934f89-e4c6-4630-b98e-37787babe22e" />
 
 You will need to use Toolkit window for selecting build configuration, changing API providers and other tweaks.
 
