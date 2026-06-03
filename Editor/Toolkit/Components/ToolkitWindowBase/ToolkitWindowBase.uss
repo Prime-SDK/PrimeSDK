@@ -1,0 +1,311 @@
+.prime-toolkit-root {
+    flex-grow: 1;
+    background-color: rgb(8, 9, 10);
+    color: rgb(226, 226, 226);
+}
+
+.prime-header {
+    height: 66px;
+    flex-grow: 0;
+    flex-shrink: 0;
+    flex-direction: row;
+    align-items: center;
+    padding-left: 18px;
+    padding-right: 18px;
+    background-color: rgb(10, 11, 12);
+    border-bottom-width: 1px;
+    border-bottom-color: rgb(255, 107, 0);
+}
+
+.prime-header-logo {
+    width: 238px;
+    height: 50px;
+    background-size: contain;
+    -unity-background-scale-mode: scale-to-fit;
+}
+
+.prime-body {
+    flex-grow: 1;
+    width: 100%;
+    height: 100%;
+    flex-direction: row;
+}
+
+.prime-navigation {
+    width: 260px;
+    flex-grow: 0;
+    flex-shrink: 0;
+    padding-top: 14px;
+    background-color: rgb(6, 7, 8);
+    border-right-width: 1px;
+    border-right-color: rgba(255, 107, 0, 0.25);
+}
+
+.prime-navigation-watermark {
+    position: absolute;
+    left: -36px;
+    bottom: 16px;
+    width: 310px;
+    height: 310px;
+    opacity: 0.18;
+    -unity-background-scale-mode: scale-to-fit;
+}
+
+.prime-viewport {
+    flex-grow: 1;
+    flex-shrink: 1;
+    padding-left: 12px;
+    padding-right: 12px;
+    background-color: rgb(10, 11, 12);
+}
+
+.prime-inspector {
+    width: 390px;
+    flex-grow: 0;
+    flex-shrink: 0;
+    background-color: rgb(9, 10, 11);
+    border-left-width: 1px;
+    border-left-color: rgba(255, 107, 0, 0.25);
+}
+
+.prime-wait-overlay {
+    position: absolute;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    display: none;
+    background-color: rgba(0, 0, 0, 0.66);
+    transition-duration: 0.2s;
+}
+
+.prime-wait-label {
+    flex-grow: 1;
+    flex-shrink: 0;
+    -unity-text-align: middle-center;
+    font-size: 16px;
+    color: rgb(255, 126, 22);
+}
+
+.prime-footer {
+    height: 34px;
+    flex-grow: 0;
+    flex-shrink: 0;
+    flex-direction: row;
+    align-items: center;
+    background-color: rgb(13, 14, 15);
+    border-top-width: 1px;
+    border-top-color: rgb(255, 107, 0);
+}
+
+.prime-footer-info {
+    flex-grow: 1;
+    flex-direction: row;
+    align-items: center;
+    padding-left: 18px;
+}
+
+.prime-sdk-info,
+.prime-debug-info {
+    margin-top: 0;
+    margin-right: 8px;
+    margin-bottom: 0;
+    margin-left: 0;
+    padding-top: 0;
+    padding-right: 0;
+    padding-bottom: 0;
+    padding-left: 0;
+    font-size: 12px;
+    color: rgb(220, 220, 220);
+    -unity-text-align: middle-left;
+}
+
+.prime-sdk-info {
+    color: rgb(255, 126, 22);
+}
+
+.prime-debug-info {
+    flex-grow: 1;
+}
+
+.prime-updates-label {
+    margin-top: 0;
+    margin-right: 10px;
+    margin-bottom: 0;
+    margin-left: 0;
+    padding-left: 8px;
+    padding-right: 8px;
+    height: 18px;
+    border-top-left-radius: 3px;
+    border-top-right-radius: 3px;
+    border-bottom-right-radius: 3px;
+    border-bottom-left-radius: 3px;
+    background-color: rgb(255, 126, 22);
+    color: rgb(10, 10, 10);
+    font-size: 11px;
+    -unity-text-align: middle-center;
+}
+
+.header-button {
+    flex-grow: 0;
+    flex-shrink: 1;
+    padding-left: 5px;
+    padding-right: 5px;
+    -unity-text-align: middle-center;
+    border-right-width: 1px;
+    border-right-color: rgb(35, 35, 35);
+}
+
+.header-button:hover {
+    background-color: rgba(255, 107, 0, 0.18);
+}
+
+.prime-section-title,
+.prime-inspector-section-title {
+    margin-top: 18px;
+    margin-right: 0;
+    margin-bottom: 10px;
+    margin-left: 0;
+    padding-top: 0;
+    padding-right: 0;
+    padding-bottom: 0;
+    padding-left: 0;
+    -unity-font-style: bold;
+    color: rgb(255, 126, 22);
+    font-size: 14px;
+    -unity-text-align: middle-left;
+}
+
+.prime-inspector-section-title {
+    margin-top: 12px;
+    margin-left: 0;
+}
+
+.prime-configuration-group {
+    padding-left: 18px;
+    padding-right: 18px;
+    padding-bottom: 10px;
+}
+
+.prime-dropdown-row {
+    margin-top: 6px;
+    margin-right: 0;
+    margin-bottom: 0;
+    margin-left: 0;
+}
+
+.prime-separator {
+    height: 1px;
+    margin-top: 12px;
+    margin-right: 0;
+    margin-bottom: 6px;
+    margin-left: 0;
+    background-color: rgba(255, 107, 0, 0.18);
+}
+
+.prime-toolkit-root Label {
+    color: rgb(218, 218, 218);
+}
+
+.prime-toolkit-root Button {
+    min-height: 22px;
+    background-color: rgb(22, 23, 25);
+    color: rgb(230, 230, 230);
+    border-left-color: rgba(255, 107, 0, 0.45);
+    border-right-color: rgba(255, 107, 0, 0.45);
+    border-top-color: rgba(255, 107, 0, 0.45);
+    border-bottom-color: rgba(255, 107, 0, 0.45);
+    border-top-width: 1px;
+    border-right-width: 1px;
+    border-bottom-width: 1px;
+    border-left-width: 1px;
+    border-top-left-radius: 3px;
+    border-top-right-radius: 3px;
+    border-bottom-right-radius: 3px;
+    border-bottom-left-radius: 3px;
+}
+
+.prime-toolkit-root Button:hover {
+    background-color: rgba(255, 107, 0, 0.18);
+    color: rgb(255, 126, 22);
+}
+
+.prime-toolkit-root DropdownField,
+.prime-toolkit-root TextField,
+.prime-toolkit-root IntegerField,
+.prime-toolkit-root FloatField,
+.prime-toolkit-root EnumField {
+    min-height: 24px;
+    color: rgb(230, 230, 230);
+}
+
+.prime-toolkit-root DropdownField > Label,
+.prime-toolkit-root TextField > Label,
+.prime-toolkit-root IntegerField > Label,
+.prime-toolkit-root FloatField > Label,
+.prime-toolkit-root EnumField > Label {
+    min-width: 185px;
+    color: rgb(218, 218, 218);
+}
+
+.prime-toolkit-root DropdownField #unity-text-input,
+.prime-toolkit-root TextField #unity-text-input,
+.prime-toolkit-root IntegerField #unity-text-input,
+.prime-toolkit-root FloatField #unity-text-input,
+.prime-toolkit-root EnumField #unity-text-input {
+    background-color: rgb(18, 19, 21);
+    color: rgb(236, 236, 236);
+    border-left-color: rgba(255, 255, 255, 0.08);
+    border-right-color: rgba(255, 255, 255, 0.08);
+    border-top-color: rgba(255, 255, 255, 0.08);
+    border-bottom-color: rgba(255, 255, 255, 0.08);
+    border-top-width: 1px;
+    border-right-width: 1px;
+    border-bottom-width: 1px;
+    border-left-width: 1px;
+    border-top-left-radius: 3px;
+    border-top-right-radius: 3px;
+    border-bottom-right-radius: 3px;
+    border-bottom-left-radius: 3px;
+}
+
+.prime-toolkit-root DropdownField #unity-text-input:hover,
+.prime-toolkit-root TextField #unity-text-input:hover,
+.prime-toolkit-root IntegerField #unity-text-input:hover,
+.prime-toolkit-root FloatField #unity-text-input:hover,
+.prime-toolkit-root EnumField #unity-text-input:hover {
+    border-left-color: rgba(255, 107, 0, 0.55);
+    border-right-color: rgba(255, 107, 0, 0.55);
+    border-top-color: rgba(255, 107, 0, 0.55);
+    border-bottom-color: rgba(255, 107, 0, 0.55);
+}
+
+.prime-toolkit-root .prime-section-title,
+.prime-toolkit-root .prime-inspector-section-title,
+.prime-toolkit-root .prime-sdk-info {
+    color: rgb(255, 126, 22);
+}
+
+.prime-toolkit-root .settings-group-container {
+    margin-top: 5px;
+    margin-right: 5px;
+    margin-bottom: 5px;
+    margin-left: 5px;
+    padding-top: 6px;
+    padding-right: 6px;
+    padding-bottom: 6px;
+    padding-left: 6px;
+    border-top-left-radius: 3px;
+    border-top-right-radius: 3px;
+    border-bottom-right-radius: 3px;
+    border-bottom-left-radius: 3px;
+    border-left-width: 1px;
+    border-right-width: 1px;
+    border-top-width: 1px;
+    border-bottom-width: 1px;
+    border-left-color: rgba(255, 107, 0, 0.22);
+    border-right-color: rgba(255, 107, 0, 0.22);
+    border-top-color: rgba(255, 107, 0, 0.22);
+    border-bottom-color: rgba(255, 107, 0, 0.22);
+    background-color: rgb(17, 18, 20);
+}

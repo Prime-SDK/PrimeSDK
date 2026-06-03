@@ -1,0 +1,19 @@
+{
+    "name": "PrimeGames.SDK.Editor",
+    "rootNamespace": "PrimeGames.SDK.Editor",
+    "references": [
+        "PrimeGames.SDK",
+        "PrimeGames.SDK.Common"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

@@ -1,0 +1,21 @@
+{
+    "name": "PrimeGames.SDK.Android",
+    "rootNamespace": "PrimeGames.SDK.Android",
+    "references": [
+        "PrimeGames.SDK.Common"
+    ],
+    "includePlatforms": [
+        "Android",
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [
+        "UNITY_ANDROID"
+    ],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

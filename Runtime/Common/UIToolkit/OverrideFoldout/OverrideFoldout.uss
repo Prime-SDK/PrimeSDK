@@ -1,0 +1,103 @@
+.foldout-override {
+    margin-top: 2px;
+    margin-right: 0;
+    margin-bottom: 2px;
+    margin-left: 0;
+}
+
+.foldout-view-button {
+    flex-direction: row;
+    background-color: rgb(25, 26, 28);
+    border-top-left-radius: 3px;
+    border-top-right-radius: 3px;
+    border-bottom-right-radius: 3px;
+    border-bottom-left-radius: 3px;
+    border-top-width: 1px;
+    border-right-width: 1px;
+    border-bottom-width: 1px;
+    border-left-width: 1px;
+    border-left-color: rgba(255, 255, 255, 0.07);
+    border-right-color: rgba(255, 255, 255, 0.07);
+    border-top-color: rgba(255, 255, 255, 0.07);
+    border-bottom-color: rgba(255, 255, 255, 0.07);
+    padding-top: 4px;
+    padding-right: 8px;
+    padding-bottom: 4px;
+    padding-left: 8px;
+}
+
+.foldout-view-button:hover {
+    background-color: rgba(255, 107, 0, 0.16);
+    border-left-color: rgba(255, 107, 0, 0.48);
+    border-right-color: rgba(255, 107, 0, 0.48);
+    border-top-color: rgba(255, 107, 0, 0.48);
+    border-bottom-color: rgba(255, 107, 0, 0.48);
+}
+
+.foldout-override-toggle {
+    margin-top: 0;
+    margin-right: 0;
+    margin-bottom: 0;
+    margin-left: 0;
+    padding-top: 0;
+    padding-right: 0;
+    padding-bottom: 0;
+    padding-left: 0;
+    flex-grow: 0;
+    flex-shrink: 0;
+    width: auto;
+    height: auto;
+}
+
+.foldout-label {
+    padding-top: 0;
+    padding-right: 0;
+    padding-bottom: 0;
+    padding-left: 5px;
+    margin-top: 0;
+    margin-right: 0;
+    margin-bottom: 0;
+    margin-left: 0;
+    color: rgb(226, 226, 226);
+}
+
+.foldout-view-container {
+    border-top-width: 0;
+    border-right-width: 1px;
+    border-bottom-width: 1px;
+    border-left-width: 1px;
+    border-left-color: rgba(255, 107, 0, 0.16);
+    border-right-color: rgba(255, 107, 0, 0.16);
+    border-top-color: rgba(255, 107, 0, 0.16);
+    border-bottom-color: rgba(255, 107, 0, 0.16);
+    border-top-left-radius: 0;
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 5px;
+    border-bottom-left-radius: 5px;
+    top: -5px;
+    display: flex;
+    margin-bottom: -5px;
+}
+
+.foldout-content {
+    padding-top: 0;
+    padding-right: 5px;
+    padding-bottom: 5px;
+    padding-left: 5px;
+    opacity: 1;
+    display: flex;
+}
+
+.foldout-override:focus .foldout-view-button {
+    border-left-color: rgb(255, 126, 22);
+    border-right-color: rgb(255, 126, 22);
+    border-top-color: rgb(255, 126, 22);
+    border-bottom-color: rgb(255, 126, 22);
+}
+
+.foldout-override:focus .foldout-view-container {
+    border-left-color: rgba(255, 126, 22, 0.5);
+    border-right-color: rgba(255, 126, 22, 0.5);
+    border-top-color: rgba(255, 126, 22, 0.5);
+    border-bottom-color: rgba(255, 126, 22, 0.5);
+}

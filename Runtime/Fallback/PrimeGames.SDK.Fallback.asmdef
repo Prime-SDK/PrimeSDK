@@ -1,0 +1,16 @@
+{
+    "name": "PrimeGames.SDK.Fallback",
+    "rootNamespace": "PrimeGames.SDK.Fallback",
+    "references": [
+        "PrimeGames.SDK.Common"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

@@ -1,0 +1,16 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+    <Style src="project://database/Packages/com.primesdk/Runtime/Common/UIToolkit/UnityStyles/UnityStyles.uss?fileID=7433441132597879392&amp;guid=32457741b76717a4082ca9b9cfa86b61&amp;type=3#UnityStyles" />
+    <Style src="project://database/Packages/com.primesdk/Runtime/Common/UIToolkit/HorizontalCard/HorizontalCard.uss?fileID=7433441132597879392&amp;guid=5ee0d3e3b573ed2428d6bc2d98ff9a32&amp;type=3#HorizontalCard" />
+    <ui:VisualElement name="item-container" focusable="true" class="item-container">
+        <ui:VisualElement name="thumbnail" class="thumbnail">
+            <ui:Label text="X" display-tooltip-when-elided="true" name="letter" class="letter" />
+        </ui:VisualElement>
+        <ui:VisualElement class="card-text-container">
+            <ui:Label text="Name" display-tooltip-when-elided="true" name="header-text" class="card-header-text" />
+            <ui:Label text="Description" display-tooltip-when-elided="true" name="description-text" class="card-description-text" />
+        </ui:VisualElement>
+        <ui:VisualElement class="card-hint-container">
+            <ui:Label text="Hint" display-tooltip-when-elided="true" name="hint-text" class="card-hint-text" />
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>

@@ -1,0 +1,25 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="True">
+    <Style src="project://database/Packages/com.primesdk/Editor/Toolkit/Components/ToolkitWindowBase/ToolkitWindowBase.uss?fileID=7433441132597879392&amp;guid=bac4bed64460b974a9caa534e80b52d5&amp;type=3#ToolkitWindowBase" />
+    <ui:VisualElement name="ToolkitRoot" class="prime-toolkit-root">
+        <ui:VisualElement name="header" class="prime-header">
+            <ui:VisualElement name="HeaderLogo" class="prime-header-logo" />
+        </ui:VisualElement>
+        <ui:VisualElement name="body" class="prime-body">
+            <ui:VisualElement name="navigation" class="prime-navigation">
+                <ui:VisualElement name="NavigationBrandWatermark" class="prime-navigation-watermark" picking-mode="Ignore" />
+            </ui:VisualElement>
+            <ui:VisualElement name="viewport" class="prime-viewport" />
+            <ui:VisualElement name="inspector" class="prime-inspector" />
+        </ui:VisualElement>
+        <ui:VisualElement name="WaitOverlay" class="prime-wait-overlay">
+            <ui:Label text="Waiting for compilation to finish..." display-tooltip-when-elided="true" name="WaitLabel" class="prime-wait-label" />
+        </ui:VisualElement>
+        <ui:VisualElement name="Footer" class="prime-footer">
+            <ui:VisualElement class="prime-footer-info">
+                <ui:Label text="PrimeSDKInfo" display-tooltip-when-elided="true" name="PrimeSDKInfo" class="prime-sdk-info" />
+                <ui:Label text="Updates available" display-tooltip-when-elided="true" name="UpdatesAvailable" class="prime-updates-label" />
+                <ui:Label text="DebugInfo" display-tooltip-when-elided="true" name="DebugInfo" class="prime-debug-info" />
+            </ui:VisualElement>
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>

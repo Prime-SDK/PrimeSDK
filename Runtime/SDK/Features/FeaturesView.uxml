@@ -1,0 +1,55 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+    <PrimeGames.SDK.UIElements.GridViewport>
+        <ui:VisualElement style="position: absolute; left: 50px; top: 50px;">
+            <ui:VisualElement style="flex-direction: row;">
+                <PrimeGames.SDK.Features.Achievements_Features />
+            </ui:VisualElement>
+            <ui:VisualElement style="flex-direction: row;">
+                <PrimeGames.SDK.Features.BannerFeatures />
+                <PrimeGames.SDK.Features.Interstitial_Features />
+                <PrimeGames.SDK.Features.Rewarded_Features />
+            </ui:VisualElement>
+            <ui:VisualElement style="flex-direction: row;">
+                <PrimeGames.SDK.Features.EventsReporter_Features />
+                <PrimeGames.SDK.Features.GameplayReporter_Features />
+            </ui:VisualElement>
+            <ui:VisualElement style="flex-direction: row;">
+                <PrimeGames.SDK.Features.Addressables_Features />
+                <PrimeGames.SDK.Features.AssetBundles_Features />
+                <PrimeGames.SDK.Features.StreamingAssets_Features />
+            </ui:VisualElement>
+            <ui:VisualElement style="flex-direction: row;">
+                <PrimeGames.SDK.Features.Audio_Features />
+            </ui:VisualElement>
+            <ui:VisualElement style="flex-direction: row;">
+                <PrimeGames.SDK.Features.Data_Features />
+            </ui:VisualElement>
+            <ui:VisualElement style="flex-direction: row;">
+                <PrimeGames.SDK.Features.DeviceBrowser_Features />
+                <PrimeGames.SDK.Features.DeviceCursor_Features />
+                <PrimeGames.SDK.Features.DeviceInfo_Features />
+            </ui:VisualElement>
+            <ui:VisualElement style="flex-direction: row;">
+                <PrimeGames.SDK.Features.Flags_Features />
+            </ui:VisualElement>
+            <ui:VisualElement style="flex-direction: row;">
+                <PrimeGames.SDK.Features.LanguageInfo_Features />
+            </ui:VisualElement>
+            <ui:VisualElement style="flex-direction: row;">
+                <PrimeGames.SDK.Features.ProductPurchase_Features />
+                <PrimeGames.SDK.Features.ProductRestore_Features />
+                <PrimeGames.SDK.Features.ProductSupply_Features />
+            </ui:VisualElement>
+            <ui:VisualElement style="flex-direction: row;">
+                <PrimeGames.SDK.Features.PlatformInfo_Features />
+            </ui:VisualElement>
+            <ui:VisualElement style="flex-direction: row;">
+                <PrimeGames.SDK.Features.PlayerAccount_Features />
+            </ui:VisualElement>
+            <ui:VisualElement style="flex-direction: row;">
+                <PrimeGames.SDK.Features.DateTime_Features />
+                <PrimeGames.SDK.Features.TimeScale_Features />
+            </ui:VisualElement>
+        </ui:VisualElement>
+    </PrimeGames.SDK.UIElements.GridViewport>
+</ui:UXML>

@@ -1,0 +1,21 @@
+{
+    "name": "PrimeGames.SDK.iOS",
+    "rootNamespace": "PrimeGames.SDK.iOS",
+    "references": [
+        "PrimeGames.SDK.Common"
+    ],
+    "includePlatforms": [
+        "Editor",
+        "iOS"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [
+        "UNITY_IOS"
+    ],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

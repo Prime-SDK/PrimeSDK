@@ -1,0 +1,7 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="True">
+    <Style src="project://database/Packages/com.primesdk/Runtime/Common/UIToolkit/UnityStyles/UnityStyles.uss?fileID=7433441132597879392&amp;guid=32457741b76717a4082ca9b9cfa86b61&amp;type=3#UnityStyles" />
+    <Style src="project://database/Packages/com.primesdk/Editor/Toolkit/Components/Stylesheets/ScrollerStyle.uss?fileID=7433441132597879392&amp;guid=e30d73ac5d20665468a86dc798067238&amp;type=3#ScrollerStyle" />
+    <ui:VisualElement>
+        <ui:VisualElement name="ContentContainer" class="settings-group-container" />
+    </ui:VisualElement>
+</ui:UXML>

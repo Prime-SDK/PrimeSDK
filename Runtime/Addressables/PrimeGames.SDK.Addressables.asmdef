@@ -1,0 +1,18 @@
+{
+    "name": "PrimeGames.SDK.Addressables",
+    "rootNamespace": "PrimeGames.SDK.Addressables",
+    "references": [
+        "PrimeGames.SDK.Common",
+        "Unity.Addressables",
+        "Unity.ResourceManager"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

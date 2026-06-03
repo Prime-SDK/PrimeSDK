@@ -1,0 +1,14 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="True">
+    <Style src="project://database/Packages/com.primesdk/Editor/Toolkit/Components/Stylesheets/ScrollerStyle.uss?fileID=7433441132597879392&amp;guid=e30d73ac5d20665468a86dc798067238&amp;type=3#ScrollerStyle" />
+    <ui:VisualElement style="flex-grow: 1; flex-shrink: 1;">
+        <ui:VisualElement name="ConfigurationGroup" class="prime-configuration-group">
+            <ui:Label text="Configuration" display-tooltip-when-elided="true" class="prime-section-title" />
+            <ui:DropdownField label="Editor Configuration" index="0" name="EditorConfiguration" class="prime-dropdown-row" />
+            <ui:DropdownField label="Build Configuration" index="0" name="BuildConfiguration" class="prime-dropdown-row" />
+            <ui:VisualElement name="separator" class="prime-separator" />
+        </ui:VisualElement>
+        <ui:ScrollView vertical-scroller-visibility="AlwaysVisible" style="flex-grow: 1;">
+            <ui:VisualElement name="ContentContainer" style="flex-grow: 1; flex-shrink: 0;" />
+        </ui:ScrollView>
+    </ui:VisualElement>
+</ui:UXML>
