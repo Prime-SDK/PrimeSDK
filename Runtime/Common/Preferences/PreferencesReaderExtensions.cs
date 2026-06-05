@@ -51,11 +51,15 @@ namespace PrimeGames.SDK.Common {
         }
 
         public static bool IsOverrideModuleEnabled(this PreferencesReader reader, string configurationName, string interfaceName) {
-            return reader.GetPreferenceGroup(configurationName).GetBool(Naming.Key(interfaceName, Naming.Override));
+            string valueKey = Naming.Key(interfaceName, Naming.Override);
+            bool defaultValue = reader.GetDefaultValueGroup(configurationName).GetBool(valueKey);
+            return reader.GetPreferenceGroup(configurationName).GetBool(valueKey, defaultValue);
         }
 
         public static bool GetPreferencesBool(this PreferencesReader reader, string configurationName, params string[] subkeys) {
-            return reader.GetPreferenceGroup(configurationName).GetBool(Naming.Key(subkeys));
+            string valueKey = Naming.Key(subkeys);
+            bool defaultValue = reader.GetDefaultValueGroup(configurationName).GetBool(valueKey);
+            return reader.GetPreferenceGroup(configurationName).GetBool(valueKey, defaultValue);
         }
 
         public static string GetDefaultString(this PreferencesReader reader, string configurationName, params string[] subkeys) {

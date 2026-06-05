@@ -32,7 +32,7 @@ namespace PrimeGames.SDK.Editor {
             PreferencesEditor preferencesEditor = new(preferences);
             foreach (string configurationName in Mapping.Configurations.Keys) {
                 Configuration configuration = Mapping.CreateConfigurationInstance(configurationName);
-                DictionaryGroup defaultValueGroup = configuration.GetDefaultValuesGroup();
+                DictionaryGroup defaultValueGroup = configuration.CreateDefaultValuesGroup();
                 preferencesEditor.InjectDefaultValueGroup(configurationName, defaultValueGroup);
             }
             return preferencesEditor;

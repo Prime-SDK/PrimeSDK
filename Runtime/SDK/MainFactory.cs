@@ -15,7 +15,7 @@ namespace PrimeGames.SDK {
             PreferencesReader preferencesReader = PreferencesReader.CreateReader();
             ConfigurationName = preferencesReader.GetConfigurationName();
             Configuration configurationInstance = Mapping.CreateConfigurationInstance(ConfigurationName);
-            DictionaryGroup defaultValueGroup = configurationInstance.GetDefaultValuesGroup();
+            DictionaryGroup defaultValueGroup = configurationInstance.CreateDefaultValuesGroup();
             preferencesReader.InjectDefaultValueGroup(ConfigurationName, defaultValueGroup);
             foreach (Type providerType in Mapping.ProviderConfigurations.Keys) {
                 Type providerConfigurationType = Mapping.ProviderConfigurations[providerType];
