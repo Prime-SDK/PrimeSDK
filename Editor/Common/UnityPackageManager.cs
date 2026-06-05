@@ -362,9 +362,9 @@ namespace PrimeGames.SDK.Editor
             }
         }
 
-        public static async Task<bool> ImportFromGit(string gitUrl, string packageName = null)
+        public static async Task<bool> ImportFromGit(string gitUrl, string packageName = null, bool skipIfInstalled = true)
         {
-            if (!string.IsNullOrEmpty(packageName) && IsPackageInstalled(packageName))
+            if (skipIfInstalled && !string.IsNullOrEmpty(packageName) && IsPackageInstalled(packageName))
             {
                 Logger.CreateText(nameof(UnityPackageManager), nameof(ImportFromGit),
                     "Package already installed, skipping", Naming.Quote(packageName));

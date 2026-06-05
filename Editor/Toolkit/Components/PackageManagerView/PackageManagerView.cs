@@ -146,7 +146,7 @@ namespace PrimeGames.SDK.Editor
             };
             installButton.clicked += async () =>
             {
-                await InstallPackageWithDependencies(card, cardInfo, installButton);
+                await InstallPackageWithDependencies(card, cardInfo, false, installButton);
             };
 
             Button updateButton = new()
@@ -155,7 +155,7 @@ namespace PrimeGames.SDK.Editor
             };
             updateButton.clicked += async () =>
             {
-                await InstallPackageWithDependencies(card, cardInfo, updateButton);
+                await InstallPackageWithDependencies(card, cardInfo, true, updateButton);
             };
 
             Button removeButton = new()
@@ -207,7 +207,7 @@ namespace PrimeGames.SDK.Editor
             UnityEditor.PackageManager.Client.Remove(cardInfo.Info.name);
         }
 
-        private async Task InstallPackageWithDependencies(HorizontalCard card, PackageCardInfo cardInfo, params Button[] buttons)
+        private async Task InstallPackageWithDependencies(HorizontalCard card, PackageCardInfo cardInfo, bool updateInstalledPackage, params Button[] buttons)
         {
             try
             {
@@ -302,7 +302,7 @@ namespace PrimeGames.SDK.Editor
                 {
                     string packageGitUrl = GetPackageGitUrl(cardInfo.Source);
                     Logger.CreateText(this, nameof(InstallPackageWithDependencies), "Installing API package", Naming.Quote(cardInfo.Info.displayName));
-                    if (!await UnityPackageManager.ImportFromGit(packageGitUrl, cardInfo.Info.name))
+                    if (!await UnityPackageManager.ImportFromGit(packageGitUrl, cardInfo.Info.name, !updateInstalledPackage))
                     {
                         Logger.CreateError(this, nameof(InstallPackageWithDependencies), "API package installation failed", Naming.Quote(cardInfo.Info.displayName));
                         return;
