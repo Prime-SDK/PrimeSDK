@@ -27,7 +27,7 @@ namespace PrimeGames.SDK.Fallback {
 
         protected override void RestorePurchasesImpl(Action<IRestoreData> onRestoreData) {
             Logger.NotImplementedWarning(this, nameof(RestorePurchasesImpl));
-            onRestoreData?.Invoke(default);
+            onRestoreData?.Invoke(new RestoreData(this, Array.Empty<string>()));
         }
 
     }

@@ -23,6 +23,9 @@
             <ui:VisualElement name="WebGLOutputGroup">
                 <ui:Label text="WebGL Output" display-tooltip-when-elided="true" style="-unity-font-style: bold; margin-top: 0; margin-right: 0; margin-bottom: 0; margin-left: 10px;" />
                 <ui:DropdownField label="Build Export Format" index="0" name="BuildExportFormat" style="margin-top: 5px; margin-left: 10px; margin-right: 10px; margin-bottom: 0;" />
+                <ui:VisualElement style="flex-direction: row; margin-top: 5px; margin-right: 10px; margin-left: 10px; justify-content: flex-end;">
+                    <ui:Button text="Open Builds Folder" display-tooltip-when-elided="true" name="OpenBuildsFolder" style="margin-top: 0; margin-right: 0; margin-bottom: 0; margin-left: 5px;" />
+                </ui:VisualElement>
                 <ui:TextField picking-mode="Ignore" label="Builds Folder Path" name="BuildsFolderPath" style="margin-top: 5px; margin-left: 10px; margin-right: 10px; margin-bottom: 0;" />
                 <ui:VisualElement style="flex-direction: row; margin-top: 5px; margin-right: 10px; margin-left: 10px; justify-content: flex-end;">
                     <ui:Button text="Reset Builds Folder" display-tooltip-when-elided="true" name="ResetBuildsFolder" style="margin-top: 0; margin-right: 0; margin-bottom: 0; margin-left: 5px;" />
@@ -44,7 +47,6 @@
                 <ui:VisualElement style="flex-direction: row; margin-top: 5px; margin-left: 10px;">
                     <ui:Button text="Build" display-tooltip-when-elided="true" name="Build" style="margin-top: 0; margin-right: 0; margin-bottom: 0; margin-left: 0;" />
                     <ui:Button text="Build And Run" display-tooltip-when-elided="true" name="BuildAndRun" style="margin-top: 0; margin-right: 0; margin-bottom: 0; margin-left: 5px;" />
-                    <ui:Button text="Open Builds Folder" display-tooltip-when-elided="true" name="OpenBuildsFolder" style="margin-top: 0; margin-right: 0; margin-bottom: 0; margin-left: 5px;" />
                 </ui:VisualElement>
                 <ui:VisualElement name="separator" style="height: 1px; background-color: rgb(35, 35, 35); margin-top: 10px; margin-right: 0; margin-bottom: 10px;" />
             </ui:VisualElement>

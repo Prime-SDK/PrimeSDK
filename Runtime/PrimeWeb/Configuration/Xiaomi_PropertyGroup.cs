@@ -22,6 +22,16 @@ namespace PrimeGames.SDK.PrimeWeb {
                     "Data Ad Channel",
                     () => adSense.dataAdChannel,
                     (value) => { adSense.dataAdChannel = value; }
+                ),
+                new(
+                    "Data Ad Slot",
+                    () => adSense.dataAdSlot,
+                    (value) => { adSense.dataAdSlot = value; }
+                ),
+                new(
+                    "Banner Position",
+                    () => adSense.bannerPosition,
+                    (value) => { adSense.bannerPosition = value; }
                 )
             };
         }

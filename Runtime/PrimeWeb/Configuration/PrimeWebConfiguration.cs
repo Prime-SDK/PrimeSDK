@@ -15,10 +15,12 @@ namespace PrimeGames.SDK.PrimeWeb {
             typeof(Framework_PropertyGroup),
             typeof(Logger_PropertyGroup),
             typeof(Y8_PropertyGroup),
+            typeof(Y8New_PropertyGroup),
             typeof(YandexGames_PropertyGroup),
             typeof(MSN_PropertyGroup),
             typeof(Xiaomi_PropertyGroup),
             typeof(Lagged_PropertyGroup),
+            typeof(LaggedNew_PropertyGroup),
             typeof(CrazyGames_PropertyGroup),
             typeof(GameDistribution_PropertyGroup)
         };

@@ -80,13 +80,17 @@ namespace PrimeGames.SDK.Common {
                 //}
                 void onRestoreDataCallback(IRestoreData restoreData) {
                     Logger.CreateText(this, nameof(onRestoreDataCallback));
-                    onRestoreData?.Invoke(restoreData);
+                    try {
+                        onRestoreData?.Invoke(restoreData);
+                    }
+                    catch (Exception exception) {
+                        Logger.CreateError(this, nameof(onRestoreDataCallback), exception);
+                    }
                 }
                 RestorePurchasesImpl(onRestoreDataCallback);
             }
             catch (Exception exception) {
                 Logger.CreateError(this, nameof(RestorePurchases), exception);
-                onRestoreData?.Invoke(null);
             }
         }
 

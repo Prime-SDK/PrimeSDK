@@ -5,34 +5,25 @@ using UnityEngine;
 namespace PrimeGames.SDK.PrimeWeb {
 
     [Serializable]
-    public class GameDistribution_PropertyGroup : PropertyGroup {
+    public class Y8New_PropertyGroup : PropertyGroup {
 
-        public override string Name => "GameDistribution";
+        public override string Name => "Y8 New";
 
+        [SerializeField] public string appId = "";
         [SerializeField] public string gameId = "";
-        [SerializeField] public bool adsDebug = false;
-        [SerializeField] public bool adsAutoplay = false;
-        [SerializeField] public bool prerollAd = true;
-        [SerializeField] public string adsLocale = "en";
+        [SerializeField] public bool useNewSdk = false;
         [SerializeField] public float interstitialInterval = 0;
 
         public override StringProperty[] GetStringProperties() {
             return new StringProperty[] {
-                new(
-                    "Game Id",
-                    () => gameId,
-                    (value) => { gameId = value; }
-                )
+                new("App Id", () => appId, (value) => { appId = value; }),
+                new("Game Id", () => gameId, (value) => { gameId = value; })
             };
         }
 
         public override BoolProperty[] GetBoolProperties() {
             return new BoolProperty[] {
-                new(
-                    "Preroll Ad",
-                    () => prerollAd,
-                    (value) => { prerollAd = value; }
-                )
+                new("Use New SDK", () => useNewSdk, (value) => { useNewSdk = value; })
             };
         }
 
