@@ -1,6 +1,7 @@
 using PrimeGames.SDK.SourceGenerator;
 using PrimeGames.SDK.Common;
 using System;
+using UnityEngine;
 using UnityEngine.UIElements;
 
 namespace PrimeGames.SDK.Features {
@@ -31,7 +32,10 @@ namespace PrimeGames.SDK.Features {
             CreateButton(nameof(IInterstitial.InvokeInterstitial), () => {
                 PrimeSDK.Ads.InvokeInterstitial(
                     onOpen: () => { },
-                    onClose: (isSuccess) => { }
+                    onClose: (isSuccess) => { },
+                    onAdBlockDetected: () => {
+                        Debug.Log(nameof(IInterstitial.InvokeInterstitial) + " AdBlock detected");
+                    }
                 );
             });
         }

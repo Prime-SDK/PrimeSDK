@@ -14,15 +14,14 @@ namespace PrimeGames.SDK.PrimeWeb {
         public override Type[] PropertyGroups { get; } = new Type[] {
             typeof(Framework_PropertyGroup),
             typeof(Logger_PropertyGroup),
-            typeof(Y8_PropertyGroup),
             typeof(Y8New_PropertyGroup),
             typeof(YandexGames_PropertyGroup),
             typeof(MSN_PropertyGroup),
             typeof(Xiaomi_PropertyGroup),
-            typeof(Lagged_PropertyGroup),
             typeof(LaggedNew_PropertyGroup),
             typeof(CrazyGames_PropertyGroup),
-            typeof(GameDistribution_PropertyGroup)
+            typeof(GameDistribution_PropertyGroup),
+            typeof(Poki_PropertyGroup)
         };
 
         public override string AchievementsProviderName { get; } = nameof(PrimeWebAchievements);
@@ -40,7 +39,7 @@ namespace PrimeGames.SDK.PrimeWeb {
         public override string DeviceInfoProviderName { get; } = nameof(PrimeWebDeviceInfo);
         public override string FlagsProviderName { get; } = nameof(PrimeWebFlags);
         public override string LanguageInfoProviderName { get; } = nameof(PrimeWebLanguageInfo);
-        public override string PauseProviderName { get; } = nameof(PrimeWebPause);
+        public override string PauseProviderName { get; } = nameof(ShowPause);
         public override string PaymentsProviderName { get; } = nameof(PrimeWebPayments);
         public override string PlatformInfoProviderName { get; } = nameof(PrimeWebPlatformInfo);
         public override string PlatformInteractionsProviderName { get; } = nameof(PrimeWebPlatformInteractions);

@@ -11,7 +11,7 @@ namespace PrimeGames.SDK.Common
         bool IsInterstitialAvailable { get; }
 
         DateTime? GetLastInterstitialSuccess();
-        void InvokeInterstitial(Action onOpen = null, Action<bool> onClose = null);
+        void InvokeInterstitial(Action onOpen = null, Action<bool> onClose = null, Action onAdBlockDetected = null);
         void InvokeInterstitial(InterstitialParameters parameters);
 
     }

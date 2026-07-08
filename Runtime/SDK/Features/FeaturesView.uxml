@@ -8,6 +8,7 @@
                 <PrimeGames.SDK.Features.BannerFeatures />
                 <PrimeGames.SDK.Features.Interstitial_Features />
                 <PrimeGames.SDK.Features.Rewarded_Features />
+                <PrimeGames.SDK.Features.AdsAdBlock_Features />
             </ui:VisualElement>
             <ui:VisualElement style="flex-direction: row;">
                 <PrimeGames.SDK.Features.EventsReporter_Features />
@@ -20,6 +21,7 @@
             </ui:VisualElement>
             <ui:VisualElement style="flex-direction: row;">
                 <PrimeGames.SDK.Features.Audio_Features />
+                <PrimeGames.SDK.Features.Pause_Features />
             </ui:VisualElement>
             <ui:VisualElement style="flex-direction: row;">
                 <PrimeGames.SDK.Features.Data_Features />

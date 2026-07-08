@@ -19,22 +19,26 @@ namespace PrimeGames.SDK.PrimeWeb {
         [DllImport(Naming.InternalDll)] private static extern bool primeSDK_ads_isInterstitialReady();
         [DllImport(Naming.InternalDll)] private static extern bool primeSDK_ads_isInterstitialVisible();
         [DllImport(Naming.InternalDll)] private static extern bool primeSDK_ads_isInterstitialAvailable();
-        [DllImport(Naming.InternalDll)] private static extern void primeSDK_ads_invokeInterstitial(int senderId, DelegateVoid onOpen, DelegateInt onClose);
+        [DllImport(Naming.InternalDll)] private static extern void primeSDK_ads_invokeInterstitial(int senderId, int adBlockDetectionEnabled, DelegateVoid onOpen, DelegateInt onClose, DelegateVoid onAdBlockDetected);
 
         [DllImport(Naming.InternalDll)] private static extern bool primeSDK_ads_isRewardedReady();
         [DllImport(Naming.InternalDll)] private static extern bool primeSDK_ads_isRewardedVisible();
         [DllImport(Naming.InternalDll)] private static extern bool primeSDK_ads_isRewardedAvailable();
-        [DllImport(Naming.InternalDll)] private static extern void primeSDK_ads_invokeRewarded(int senderId, DelegateVoid onOpen, DelegateInt onClose);
+        [DllImport(Naming.InternalDll)] private static extern void primeSDK_ads_invokeRewarded(int senderId, int adBlockDetectionEnabled, DelegateVoid onOpen, DelegateInt onClose, DelegateVoid onAdBlockDetected);
+
+        private readonly PrimeWebAds_Configuration configuration;
 
         private record InvokeInterstitialInfo {
             public Action onOpen;
             public Action<bool> onClose;
+            public Action onAdBlockDetected;
         }
 
         public record InvokeRewardedInfo {
             public string rewardTag;
             public Action onOpen;
             public Action<bool> onClose;
+            public Action onAdBlockDetected;
         }
 
         private static readonly Dictionary<int, InvokeInterstitialInfo> invokeInterstitialInfo = new();
@@ -65,6 +69,18 @@ namespace PrimeGames.SDK.PrimeWeb {
         }
 
         [MonoPInvokeCallback(typeof(DelegateVoid))]
+        private static void OnInterstitialAdBlockDetected(int senderId) {
+            try {
+                if (invokeInterstitialInfo.TryGetValue(senderId, out InvokeInterstitialInfo info)) {
+                    info.onAdBlockDetected?.Invoke();
+                }
+            }
+            catch (Exception exception) {
+                Logger.CreateError(nameof(PrimeWebAds), nameof(OnInterstitialAdBlockDetected), exception);
+            }
+        }
+
+        [MonoPInvokeCallback(typeof(DelegateVoid))]
         private static void OnRewardedOpen(int senderId) {
             try {
                 if (invokeRewardedInfo.TryGetValue(senderId, out InvokeRewardedInfo info)) {
@@ -88,7 +104,20 @@ namespace PrimeGames.SDK.PrimeWeb {
             }
         }
 
-        public PrimeWebAds(IEventAggregator eventAggregator) : base(eventAggregator) {
+        [MonoPInvokeCallback(typeof(DelegateVoid))]
+        private static void OnRewardedAdBlockDetected(int senderId) {
+            try {
+                if (invokeRewardedInfo.TryGetValue(senderId, out InvokeRewardedInfo info)) {
+                    info.onAdBlockDetected?.Invoke();
+                }
+            }
+            catch (Exception exception) {
+                Logger.CreateError(nameof(PrimeWebAds), nameof(OnRewardedAdBlockDetected), exception);
+            }
+        }
+
+        public PrimeWebAds(PrimeWebAds_Configuration configuration, IEventAggregator eventAggregator) : base(eventAggregator) {
+            this.configuration = configuration;
             SetInitialized();
         }
 
@@ -132,13 +161,18 @@ namespace PrimeGames.SDK.PrimeWeb {
             get => primeSDK_ads_isInterstitialAvailable();
         }
 
-        protected override void InvokeInterstitialImpl(InterstitialParameters parameters, Action onOpen, Action<bool> onClose) {
+        protected override void InvokeInterstitialImpl(InterstitialParameters parameters, Action onOpen, Action<bool> onClose, Action onAdBlockDetected) {
             int senderId = invokeInterstitialInfo.Count;
             invokeInterstitialInfo[senderId] = new InvokeInterstitialInfo() {
                 onOpen = onOpen,
-                onClose = onClose
+                onClose = onClose,
+                onAdBlockDetected = onAdBlockDetected
             };
-            primeSDK_ads_invokeInterstitial(senderId, OnInterstitialOpen, OnInterstitialClose);
+            primeSDK_ads_invokeInterstitial(senderId, configuration.AdBlockDetectionEnabled ? 1 : 0, OnInterstitialOpen, OnInterstitialClose, OnInterstitialAdBlockDetected);
+        }
+
+        protected override void InvokeInterstitialImpl(InterstitialParameters parameters, Action onOpen, Action<bool> onClose) {
+            InvokeInterstitialImpl(parameters, onOpen, onClose, null);
         }
 
         public override bool IsRewardedReady {
@@ -155,14 +189,19 @@ namespace PrimeGames.SDK.PrimeWeb {
             get => primeSDK_ads_isRewardedAvailable();
         }
 
-        protected override void InvokeRewardedImpl(RewardedParameters parameters, Action onOpen, Action<bool> onClose) {
+        protected override void InvokeRewardedImpl(RewardedParameters parameters, Action onOpen, Action<bool> onClose, Action onAdBlockDetected) {
             int senderId = invokeRewardedInfo.Count;
             invokeRewardedInfo[senderId] = new InvokeRewardedInfo() {
                 rewardTag = parameters.PlacementId,
                 onOpen = onOpen,
-                onClose = onClose
+                onClose = onClose,
+                onAdBlockDetected = onAdBlockDetected
             };
-            primeSDK_ads_invokeRewarded(senderId, OnRewardedOpen, OnRewardedClose);
+            primeSDK_ads_invokeRewarded(senderId, configuration.AdBlockDetectionEnabled ? 1 : 0, OnRewardedOpen, OnRewardedClose, OnRewardedAdBlockDetected);
+        }
+
+        protected override void InvokeRewardedImpl(RewardedParameters parameters, Action onOpen, Action<bool> onClose) {
+            InvokeRewardedImpl(parameters, onOpen, onClose, null);
         }
 
     }

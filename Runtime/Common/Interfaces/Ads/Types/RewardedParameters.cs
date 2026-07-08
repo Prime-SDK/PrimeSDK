@@ -6,6 +6,7 @@ namespace PrimeGames.SDK.Common
     {
         public Action OnOpen = null;
         public Action<bool> OnClose = null;
+        public Action OnAdBlockDetected = null;
         public string PlacementId = string.Empty;
     }
 }

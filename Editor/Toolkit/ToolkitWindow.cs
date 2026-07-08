@@ -46,6 +46,7 @@ namespace PrimeGames.SDK.Editor
             windowBaseElement.style.flexGrow = 1;
             rootVisualElement.Add(windowBaseElement);
             InitializeBranding();
+            UpdatesAvailable.RegisterCallback<ClickEvent>(OpenBacklogFromFooter);
 
             OnConfigurationChanged += UpdateDebugInfo;
             UpdateDebugInfo();
@@ -81,6 +82,24 @@ namespace PrimeGames.SDK.Editor
             PrimeSDKInfo.style.marginRight = 0.0f;
             PrimeSDKInfo.text = $"{nameof(PrimeSDK)} {PrimeSDK.Version}";
             DebugInfo.text = $"| {buildTarget} | {configurationName} | Unity {unityVersion} | {systemInfo}";
+            RefreshUpdatesAvailability();
+        }
+
+        private async void RefreshUpdatesAvailability()
+        {
+            PackageInfo packageInfo = await PrimeSDKUpdateService.GetLatestPackageInfo();
+            if (packageInfo == null || UpdatesAvailable == null) {
+                return;
+            }
+            bool updateAvailable = PrimeSDKUpdateService.IsUpdateAvailable(PrimeSDK.Version, packageInfo.version);
+            UpdatesAvailable.style.display = updateAvailable ? DisplayStyle.Flex : DisplayStyle.None;
+            UpdatesAvailable.tooltip = updateAvailable ? $"PrimeSDK {packageInfo.version} is available" : string.Empty;
+            PrimeSDKInfo.style.marginRight = updateAvailable ? 8.0f : 0.0f;
+        }
+
+        private void OpenBacklogFromFooter(ClickEvent clickEvent)
+        {
+            PrimeSDKBacklogWindow.Open();
         }
 
         private void OnDisable()

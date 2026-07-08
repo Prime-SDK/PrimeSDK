@@ -1,5 +1,6 @@
 using PrimeGames.SDK.Common;
 using PrimeGames.SDK.Fallback;
+using PrimeGames.SDK.PrimeWeb;
 using PrimeGames.SDK.Prototype;
 using PrimeGames.SDK.System;
 using PrimeGames.SDK.UnityEngine;
@@ -29,7 +30,7 @@ namespace PrimeGames.SDK {
         public override string DeviceInfoProviderName { get; } = nameof(PrototypeDeviceInfo);
         public override string FlagsProviderName { get; } = nameof(FallbackFlags);
         public override string LanguageInfoProviderName { get; } = nameof(PrototypeLanguageInfo);
-        public override string PauseProviderName { get; } = nameof(UnityEnginePause);
+        public override string PauseProviderName { get; } = nameof(ShowPause);
         public override string PaymentsProviderName { get; } = nameof(PrototypePayments);
         public override string PlatformInfoProviderName { get; } = nameof(PrototypePlatformInfo);
         public override string PlatformInteractionsProviderName { get; } = nameof(FallbackPlatformInteractions);

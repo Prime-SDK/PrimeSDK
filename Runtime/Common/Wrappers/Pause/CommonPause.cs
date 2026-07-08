@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 
 namespace PrimeGames.SDK.Common {
@@ -18,6 +19,10 @@ namespace PrimeGames.SDK.Common {
         }
 
         public virtual void OnPauseChange(bool isPaused) { }
+
+        public virtual void ShowContinuePrompt(Action onContinue = null) {
+            PauseOverlayView.ShowContinuePrompt(onContinue);
+        }
 
         public void Register(object source, bool value) {
             string key = (source is string) ? source as string : source.GetType().ToString();

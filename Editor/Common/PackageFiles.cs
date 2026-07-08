@@ -39,6 +39,12 @@ namespace PrimeGames.SDK.Editor {
             return null;
         }
 
+        public static Texture2D FindPlatformTextureAsset(string name) {
+            string assetPath = Path.Combine(RelativePackageDatabasePath, Naming.Editor, Naming.Toolkit, "Textures", "Platform", $"{name}.png").NormalizePath();
+            Texture2D texture = AssetDatabase.LoadAssetAtPath<Texture2D>(assetPath);
+            return texture != null ? texture : FindTextureAsset(name);
+        }
+
         public static VisualTreeAsset[] FindVisualTreeAssets() {
             string[] searchPaths = new string[] { RelativePackageDatabasePath };
             string[] guids = AssetDatabase.FindAssets("t:VisualTreeAsset", searchPaths);

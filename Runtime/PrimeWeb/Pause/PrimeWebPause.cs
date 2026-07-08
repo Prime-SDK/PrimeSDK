@@ -2,6 +2,7 @@ using AOT;
 using PrimeGames.SDK.Common;
 using System;
 using System.Runtime.InteropServices;
+using Application = UnityEngine.Application;
 
 namespace PrimeGames.SDK.PrimeWeb {
 
@@ -26,6 +27,11 @@ namespace PrimeGames.SDK.PrimeWeb {
         public PrimeWebPause(IEventAggregator aggregator, IEventDispatcher eventDispatcher) : base(aggregator) {
             eventDispatcher.OnApplicationFocus += OnApplicationFocus;
             eventDispatcher.OnApplicationPause += OnApplicationPause;
+
+            if (Application.isEditor) {
+                return;
+            }
+
             try {
                 primeSDK_pause_onPauseChange(OnPauseChangeCallback);
                 OnExternalPauseChange += (isPaused) => {

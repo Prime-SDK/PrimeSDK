@@ -11,6 +11,7 @@ namespace PrimeGames.SDK.Editor {
         private const string VIEW_BUTTON_NAME = "foldout-view-button";
         private const string TOGGLE_NAME = "foldout-override-toggle";
         private const string LABEL_NAME = "foldout-label";
+        private const string ICON_NAME = "foldout-icon";
         private const string VIEW_CONTAINER_NAME = "foldout-view-container";
         private const string STATUS_LABEL_NAME = "foldout-status";
 
@@ -61,6 +62,39 @@ namespace PrimeGames.SDK.Editor {
         public void HideOverrideToggle() {
             ToggleView.style.display = DisplayStyle.None;
             this.Q<VisualElement>("toggle-container").style.marginTop = 5;
+        }
+
+        public void HideStatusLabel() {
+            StatusLabel.style.display = DisplayStyle.None;
+        }
+
+        public void SetMuted() {
+            Color mutedBorder = new(0.45f, 0.45f, 0.45f, 0.35f);
+            ViewButton.style.backgroundColor = new Color(0.11f, 0.11f, 0.12f, 1.0f);
+            ViewButton.style.borderLeftColor = mutedBorder;
+            ViewButton.style.borderRightColor = mutedBorder;
+            ViewButton.style.borderTopColor = mutedBorder;
+            ViewButton.style.borderBottomColor = mutedBorder;
+            Label.style.color = new Color(0.62f, 0.62f, 0.62f, 1.0f);
+            StatusLabel.style.color = new Color(0.62f, 0.62f, 0.62f, 1.0f);
+        }
+
+        public void SetIcon(Texture2D texture, bool muted = false) {
+            if (texture.IsNullOrDestroyed()) {
+                return;
+            }
+            VisualElement icon = ViewButton.Q<VisualElement>(ICON_NAME);
+            if (icon == null) {
+                icon = new VisualElement {
+                    name = ICON_NAME,
+                    pickingMode = PickingMode.Ignore
+                };
+                icon.AddToClassList(ICON_NAME);
+                ViewButton.Insert(0, icon);
+            }
+            icon.style.backgroundImage = new StyleBackground(texture);
+            icon.style.unityBackgroundScaleMode = ScaleMode.ScaleToFit;
+            icon.style.opacity = muted ? 0.45f : 1.0f;
         }
 
         public string Text {

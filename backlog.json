@@ -1,0 +1,26 @@
+{
+  "Releases": [
+    {
+      "Version": "5.2.3",
+      "Title": "PrimeSDK update",
+      "Ru": [
+        "Добавлен callback OnAdBlockDetected в рекламный API для Interstitial и Rewarded.",
+        "Проверка AdBlock выполняется только в момент вызова рекламы.",
+        "Добавлено окно Backlog с описанием изменений на русском и английском языках.",
+        "Добавлен автоматический Pre-roll (предпоказ) рекламы для всех игр, собираемых под платформу GameDistribution.",
+        "Y8 и Lagged полностью переведены на новый API и обновлены до актуальных версий PrimeJS. Старые версии полностью не удалены: они доступны через чекбокс Legacy Version в настройках платформы.",
+        "Добавлено универсальное модальное окно, которое призывает пользователя вернуть фокус игры для продолжения. Окно вызывается через API PrimeSDK.Pause.ShowContinuePrompt().",
+        "Добавлена поддержка платформы Poki. Пайплайн работы с ней идентичен пайплайну CrazyGames."
+      ],
+      "En": [
+        "Added the OnAdBlockDetected callback to the Interstitial and Rewarded ads API.",
+        "AdBlock detection runs only when an ad is invoked.",
+        "Added a Backlog window with changelogs available in both Russian and English.",
+        "Added automatic Pre-roll ads for all games built for the GameDistribution platform.",
+        "Y8 and Lagged have been fully migrated to the new API and updated to the latest PrimeJS versions. The old versions were not fully removed: they are available through the Legacy Version checkbox in each platform's settings.",
+        "Added a universal modal window that prompts the user to return focus to the game to continue. The window is invoked through the PrimeSDK.Pause.ShowContinuePrompt() API.",
+        "Added support for the Poki platform. Its workflow is identical to the CrazyGames workflow."
+      ]
+    }
+  ]
+}

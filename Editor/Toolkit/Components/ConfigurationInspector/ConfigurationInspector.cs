@@ -2,6 +2,7 @@ using PrimeGames.SDK.Common;
 using PrimeGames.SDK.SourceGenerator;
 using System;
 using System.Collections.Generic;
+using System.Reflection;
 using System.Linq;
 using UnityEditor.UIElements;
 using UnityEngine;
@@ -13,6 +14,12 @@ namespace PrimeGames.SDK.Editor {
     internal partial class ConfigurationInspector : VisualElement {
 
         private const int EnumFieldWidth = 175;
+        private const string LegacyVersionSectionName = "Legacy Version";
+        private const string LegacyVersionToggleName = "Enabled";
+        private static readonly Dictionary<string, string> PlatformIconAliases = new() {
+            { "Xiaomi", "XiaomiGames" }
+        };
+
         private readonly Dictionary<SettingsFoldout, Type> foldoutTypeMapping = new();
         private readonly Dictionary<SettingsFoldout, PropertyGroup> configurationMapping = new();
 
@@ -77,32 +84,49 @@ namespace PrimeGames.SDK.Editor {
                 ConfigurationView.style.display = DisplayStyle.None;
             }
             foreach (Type propertyGroupType in propertyGroupTypes) {
-                string preferencesKey = propertyGroupType.Name;
-
-                PropertyGroup propertyGroup = Activator.CreateInstance(propertyGroupType) as PropertyGroup; // TODO: create factory for this and avoid Activator
-                bool isOverrideEnabled = preferencesEditor.IsOverrideModuleEnabled(SelectedConfigurationName, preferencesKey);
-
-                SettingsFoldout groupFoldout = new(
-                    overrideValue: isOverrideEnabled,
-                    contentVisible: preferencesEditor.GetPreferencesBool(SelectedConfigurationName, preferencesKey, Naming.Visible),
-                    overrideSetter: (value) => { }
-                );
-                groupFoldout.name = propertyGroup.Name;
-                groupFoldout.Text = propertyGroup.Name;
-                groupFoldout.OnContentVisibleChange += () => {
-                    preferencesEditor.SetModuleBool(SelectedConfigurationName, preferencesKey, Naming.Visible, groupFoldout.ContentVisible);
-                };
-                groupFoldout.OnOverrideValueChange += () => {
-                    preferencesEditor.SetModuleBool(SelectedConfigurationName, preferencesKey, Naming.Override, groupFoldout.OverrideValue);
-                    UpdateConfigurationFoldoutContent(groupFoldout);
-                };
-                if (configurationInstance.ReadOnly) {
-                    groupFoldout.HideOverrideToggle();
-                }
-                ConfigurationContainer.Add(groupFoldout);
-                configurationMapping[groupFoldout] = propertyGroup;
-                UpdateConfigurationFoldoutContent(groupFoldout);
+                ConfigurationContainer.Add(CreateConfigurationFoldout(propertyGroupType, configurationInstance.ReadOnly));
             }
+        }
+
+        private SettingsFoldout CreateConfigurationFoldout(Type propertyGroupType, bool readOnly, bool muted = false) {
+            string preferencesKey = propertyGroupType.Name;
+
+            PropertyGroup propertyGroup = Activator.CreateInstance(propertyGroupType) as PropertyGroup; // TODO: create factory for this and avoid Activator
+            bool isOverrideEnabled = preferencesEditor.IsOverrideModuleEnabled(SelectedConfigurationName, preferencesKey);
+
+            SettingsFoldout groupFoldout = new(
+                overrideValue: isOverrideEnabled,
+                contentVisible: preferencesEditor.GetPreferencesBool(SelectedConfigurationName, preferencesKey, Naming.Visible),
+                overrideSetter: (value) => { }
+            );
+            groupFoldout.name = propertyGroup.Name;
+            groupFoldout.Text = propertyGroup.Name;
+            SetConfigurationFoldoutIcon(groupFoldout, propertyGroup, muted);
+            groupFoldout.OnContentVisibleChange += () => {
+                preferencesEditor.SetModuleBool(SelectedConfigurationName, preferencesKey, Naming.Visible, groupFoldout.ContentVisible);
+            };
+            groupFoldout.OnOverrideValueChange += () => {
+                preferencesEditor.SetModuleBool(SelectedConfigurationName, preferencesKey, Naming.Override, groupFoldout.OverrideValue);
+                UpdateConfigurationFoldoutContent(groupFoldout);
+            };
+            if (readOnly) {
+                groupFoldout.HideOverrideToggle();
+            }
+            if (muted) {
+                groupFoldout.SetMuted();
+            }
+            configurationMapping[groupFoldout] = propertyGroup;
+            UpdateConfigurationFoldoutContent(groupFoldout);
+            return groupFoldout;
+        }
+
+        private void SetConfigurationFoldoutIcon(SettingsFoldout foldout, PropertyGroup propertyGroup, bool muted) {
+            string iconName = propertyGroup.Name;
+            if (PlatformIconAliases.TryGetValue(iconName, out string alias)) {
+                iconName = alias;
+            }
+            Texture2D platformIcon = PackageFiles.FindPlatformTextureAsset(iconName);
+            foldout.SetIcon(platformIcon, muted);
         }
 
         private void WritePropertyGroup(string preferencesKey, PropertyGroup propertyGroup) {
@@ -167,6 +191,70 @@ namespace PrimeGames.SDK.Editor {
                 });
                 contentContainer.Add(floatField);
             }
+            CreateLegacyVersionSection(contentContainer, propertyGroup, preferencesKey);
+        }
+
+        private void CreateLegacyVersionSection(VisualElement contentContainer, PropertyGroup propertyGroup, string preferencesKey) {
+            BoolProperty legacyVersionProperty = GetLegacyVersionProperty(propertyGroup);
+            if (legacyVersionProperty == null) {
+                return;
+            }
+
+            VisualElement section = new();
+            section.style.marginTop = 8;
+            section.style.paddingTop = 6;
+            section.style.borderTopWidth = 1;
+            section.style.borderTopColor = new Color(1.0f, 0.42f, 0.0f, 0.18f);
+
+            Label title = new(LegacyVersionSectionName) {
+                pickingMode = PickingMode.Ignore
+            };
+            title.style.color = new Color(1.0f, 0.55f, 0.0f, 1.0f);
+            title.style.unityFontStyleAndWeight = FontStyle.Bold;
+            title.style.marginBottom = 4;
+            title.style.paddingLeft = 2;
+            section.Add(title);
+
+            BoolField legacyVersionField = new() {
+                Name = legacyVersionProperty.Name,
+                Value = legacyVersionProperty.Getter()
+            };
+            legacyVersionField.OnToggleClick += () => {
+                bool value = legacyVersionProperty.Getter();
+                legacyVersionProperty.Setter(!value);
+                legacyVersionField.Value = !value;
+                WritePropertyGroup(preferencesKey, propertyGroup);
+                CreatePropertyFields(contentContainer, propertyGroup, preferencesKey, true);
+            };
+            section.Add(legacyVersionField);
+            contentContainer.Add(section);
+        }
+
+        private BoolProperty GetLegacyVersionProperty(PropertyGroup propertyGroup) {
+            Type propertyGroupType = propertyGroup.GetType();
+            if (propertyGroupType.Name == "Y8New_PropertyGroup") {
+                FieldInfo useNewSdkField = propertyGroupType.GetField("useNewSdk");
+                if (useNewSdkField == null) {
+                    return null;
+                }
+                return new BoolProperty(
+                    LegacyVersionToggleName,
+                    () => !(bool)useNewSdkField.GetValue(propertyGroup),
+                    value => { useNewSdkField.SetValue(propertyGroup, !value); }
+                );
+            }
+            if (propertyGroupType.Name == "LaggedNew_PropertyGroup") {
+                FieldInfo useLegacySdkField = propertyGroupType.GetField("useLegacySdk");
+                if (useLegacySdkField == null) {
+                    return null;
+                }
+                return new BoolProperty(
+                    LegacyVersionToggleName,
+                    () => (bool)useLegacySdkField.GetValue(propertyGroup),
+                    value => { useLegacySdkField.SetValue(propertyGroup, value); }
+                );
+            }
+            return null;
         }
 
         private void InitializeProviderFoldouts(Configuration configurationInstance) {

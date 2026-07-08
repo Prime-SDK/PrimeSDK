@@ -74,6 +74,11 @@ namespace PrimeGames.SDK.Common
 
         protected abstract void InvokeInterstitialImpl(InterstitialParameters parameters, Action onOpen, Action<bool> onClose);
 
+        protected virtual void InvokeInterstitialImpl(InterstitialParameters parameters, Action onOpen, Action<bool> onClose, Action onAdBlockDetected)
+        {
+            InvokeInterstitialImpl(parameters, onOpen, onClose);
+        }
+
         public DateTime? GetLastInterstitialSuccess()
         {
             return lastInterstitialSuccess;
@@ -140,7 +145,12 @@ namespace PrimeGames.SDK.Common
                     PauseSourceEvent pauseSourceEvent = new(nameof(InvokeInterstitial), false);
                     eventAggregator.Publish(this, pauseSourceEvent);
                 }
-                InvokeInterstitialImpl(parameters, onOpenCallback, onCloseCallback);
+                void onAdBlockDetectedCallback()
+                {
+                    Logger.CreateText(this, nameof(onAdBlockDetectedCallback));
+                    parameters.OnAdBlockDetected?.Invoke();
+                }
+                InvokeInterstitialImpl(parameters, onOpenCallback, onCloseCallback, onAdBlockDetectedCallback);
             }
             catch (Exception exception)
             {
@@ -148,13 +158,14 @@ namespace PrimeGames.SDK.Common
             }
         }
 
-        public void InvokeInterstitial(Action onOpen = null, Action<bool> onClose = null)
+        public void InvokeInterstitial(Action onOpen = null, Action<bool> onClose = null, Action onAdBlockDetected = null)
         {
             Logger.CreateText(this, nameof(InvokeInterstitial));
             InterstitialParameters parameters = new()
             {
                 OnOpen = onOpen,
-                OnClose = onClose
+                OnClose = onClose,
+                OnAdBlockDetected = onAdBlockDetected
             };
             InvokeInterstitial(parameters);
         }
@@ -169,6 +180,11 @@ namespace PrimeGames.SDK.Common
         public virtual bool IsRewardedAvailable { get; }
 
         protected abstract void InvokeRewardedImpl(RewardedParameters parameters, Action onOpen, Action<bool> onClose);
+
+        protected virtual void InvokeRewardedImpl(RewardedParameters parameters, Action onOpen, Action<bool> onClose, Action onAdBlockDetected)
+        {
+            InvokeRewardedImpl(parameters, onOpen, onClose);
+        }
 
         public DateTime? GetLastRewardedSuccess(string rewardTag = null)
         {
@@ -224,7 +240,12 @@ namespace PrimeGames.SDK.Common
                     PauseSourceEvent pauseSourceEvent = new(nameof(InvokeRewarded), false);
                     eventAggregator.Publish(this, pauseSourceEvent);
                 }
-                InvokeRewardedImpl(parameters, onOpenCallback, onCloseCallback);
+                void onAdBlockDetectedCallback()
+                {
+                    Logger.CreateText(this, nameof(onAdBlockDetectedCallback));
+                    parameters.OnAdBlockDetected?.Invoke();
+                }
+                InvokeRewardedImpl(parameters, onOpenCallback, onCloseCallback, onAdBlockDetectedCallback);
             }
             catch (Exception exception)
             {
@@ -232,13 +253,14 @@ namespace PrimeGames.SDK.Common
             }
         }
 
-        public void InvokeRewarded(Action onOpen = null, Action<bool> onClose = null, string rewardTag = null)
+        public void InvokeRewarded(Action onOpen = null, Action<bool> onClose = null, string rewardTag = null, Action onAdBlockDetected = null)
         {
             RewardedParameters parameters = new()
             {
                 OnOpen = onOpen,
                 OnClose = onClose,
-                PlacementId = rewardTag
+                PlacementId = rewardTag,
+                OnAdBlockDetected = onAdBlockDetected
             };
             InvokeRewarded(parameters);
         }

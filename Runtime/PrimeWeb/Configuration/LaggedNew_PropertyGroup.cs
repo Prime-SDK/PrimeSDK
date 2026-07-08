@@ -7,19 +7,21 @@ namespace PrimeGames.SDK.PrimeWeb {
     [Serializable]
     public class LaggedNew_PropertyGroup : PropertyGroup {
 
-        public override string Name => "Lagged New";
+        public override string Name => "Lagged";
 
         [SerializeField] public bool useLegacySdk = false;
+        [SerializeField] public string devId = "";
+        [SerializeField] public string publisherId = "";
         [SerializeField] public string gameKey = "";
         [SerializeField] public float interstitialInterval = 0;
 
-        public override BoolProperty[] GetBoolProperties() {
-            return new BoolProperty[] {
-                new("Use Legacy SDK", () => useLegacySdk, (value) => { useLegacySdk = value; })
-            };
-        }
-
         public override StringProperty[] GetStringProperties() {
+            if (useLegacySdk) {
+                return new StringProperty[] {
+                    new("Dev Id", () => devId, (value) => { devId = value; }),
+                    new("Publisher Id", () => publisherId, (value) => { publisherId = value; })
+                };
+            }
             return new StringProperty[] {
                 new("Game Key", () => gameKey, (value) => { gameKey = value; })
             };

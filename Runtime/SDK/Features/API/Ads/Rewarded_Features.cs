@@ -1,6 +1,7 @@
 using System;
 using PrimeGames.SDK.Common;
 using PrimeGames.SDK.SourceGenerator;
+using UnityEngine;
 using UnityEngine.UIElements;
 
 namespace PrimeGames.SDK.Features {
@@ -31,10 +32,12 @@ namespace PrimeGames.SDK.Features {
             });
 
             CreateButton(nameof(IRewarded.InvokeRewarded), () => {
-                // TODO: log callbacks.
                 PrimeSDK.Ads.InvokeRewarded(
                     onOpen: () => { },
-                    onClose: (success) => { }
+                    onClose: (success) => { },
+                    onAdBlockDetected: () => {
+                        Debug.Log(nameof(IRewarded.InvokeRewarded) + " AdBlock detected");
+                    }
                 );
             });
         }

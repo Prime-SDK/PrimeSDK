@@ -6,7 +6,7 @@ namespace PrimeGames.SDK {
     [Root, Preserve]
     public partial class PrimeSDK {
 
-        public const string Version = "5.1.59";
+        public const string Version = "5.2.3";
 
         private PrimeSDK(MainFactory factory) {
             Logger.CreateText(this, $"Starting up. Version {Version}");

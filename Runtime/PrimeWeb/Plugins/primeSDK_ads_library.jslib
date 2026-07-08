@@ -36,14 +36,17 @@ const primeSDK_ads_library = {
         return Module.primeSDK.ads.isInterstitialAvailable;
     },
 
-    primeSDK_ads_invokeInterstitial: function (senderId, onOpenPtr, onClosePtr) {
+    primeSDK_ads_invokeInterstitial: function (senderId, adBlockDetectionEnabled, onOpenPtr, onClosePtr, onAdBlockDetectedPtr) {
         const onOpen = () => {
             Module.invokeMonoPCallback(senderId, onOpenPtr);
         };
         const onClose = (isSuccess) => {
             Module.invokeMonoPCallback(senderId, onClosePtr, isSuccess);
         };
-        Module.primeSDK.ads.invokeInterstitial(onOpen, onClose);
+        const onAdBlockDetected = () => {
+            Module.invokeMonoPCallback(senderId, onAdBlockDetectedPtr);
+        };
+        Module.primeSDK.ads.invokeInterstitial(onOpen, onClose, onAdBlockDetected, adBlockDetectionEnabled === 1);
     },
 
     primeSDK_ads_isRewardedReady: function () {
@@ -58,14 +61,17 @@ const primeSDK_ads_library = {
         return Module.primeSDK.ads.isRewardedAvailable;
     },
 
-    primeSDK_ads_invokeRewarded: function (senderId, onOpenPtr, onClosePtr) {
+    primeSDK_ads_invokeRewarded: function (senderId, adBlockDetectionEnabled, onOpenPtr, onClosePtr, onAdBlockDetectedPtr) {
         const onOpen = () => {
             Module.invokeMonoPCallback(senderId, onOpenPtr);
         };
         const onClose = (isSuccess) => {
             Module.invokeMonoPCallback(senderId, onClosePtr, isSuccess);
         };
-        Module.primeSDK.ads.invokeRewarded(onOpen, onClose);
+        const onAdBlockDetected = () => {
+            Module.invokeMonoPCallback(senderId, onAdBlockDetectedPtr);
+        };
+        Module.primeSDK.ads.invokeRewarded(onOpen, onClose, onAdBlockDetected, adBlockDetectionEnabled === 1);
     },
 
 };

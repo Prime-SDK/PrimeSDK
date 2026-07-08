@@ -9,7 +9,7 @@ namespace PrimeGames.SDK.Common {
         bool IsRewardedAvailable { get; }
 
         DateTime? GetLastRewardedSuccess(string rewardTag = null);
-        void InvokeRewarded(Action onOpen = null, Action<bool> onClose = null, string rewardTag = null);
+        void InvokeRewarded(Action onOpen = null, Action<bool> onClose = null, string rewardTag = null, Action onAdBlockDetected = null);
         void InvokeRewarded(RewardedParameters parameters);
 
     }
