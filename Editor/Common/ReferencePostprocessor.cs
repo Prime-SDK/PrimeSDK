@@ -14,9 +14,10 @@ namespace PrimeGames.SDK.Editor {
         }
 
         private static void ExecuteIntegrityChecks() {
-            bool hasChanges = PreferencesEditor.CheckFileIntegrity()
-                || VisualTreeReferenceGenerator.UpdateReferences()
-                || PrefabReferenceGenerator.UpdateReferences();
+            bool preferencesChanged = PreferencesEditor.CheckFileIntegrity();
+            bool visualTreeReferencesChanged = VisualTreeReferenceGenerator.UpdateReferences();
+            bool prefabReferencesChanged = PrefabReferenceGenerator.UpdateReferences();
+            bool hasChanges = preferencesChanged || visualTreeReferencesChanged || prefabReferencesChanged;
             if (hasChanges) {
                 AssetDatabase.Refresh();
             }

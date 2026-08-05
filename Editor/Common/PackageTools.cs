@@ -30,6 +30,14 @@ namespace PrimeGames.SDK.Editor {
             EditorPrefs.SetString($"{Naming.PrimeSDK}[{ProjectId}].{key}", value);
         }
 
+        public static bool GetPrefsBool(string key, bool defaultValue = false) {
+            return EditorPrefs.GetBool($"{Naming.PrimeSDK}[{ProjectId}].{key}", defaultValue);
+        }
+
+        public static void SetPrefsBool(string key, bool value) {
+            EditorPrefs.SetBool($"{Naming.PrimeSDK}[{ProjectId}].{key}", value);
+        }
+
     }
 
 }

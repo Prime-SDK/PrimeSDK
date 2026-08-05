@@ -74,6 +74,7 @@ namespace PrimeGames.SDK.Editor {
 
         public string Path;
         public long SizeBytes;
+        public long SourceSizeBytes;
         public string TypeName;
         public BuildAssetCategory Category;
 
@@ -86,7 +87,7 @@ namespace PrimeGames.SDK.Editor {
 
         public string StatusMessage {
             get {
-                return $"Assets: {Assets.Count} | Estimated source size: {BuildAssetAnalyzer.FormatBytes(TotalSizeBytes)}";
+                return $"Assets: {Assets.Count} | Estimated target size: {BuildAssetAnalyzer.FormatBytes(TotalSizeBytes)}";
             }
         }
 
@@ -215,50 +216,61 @@ namespace PrimeGames.SDK.Editor {
             { OptimizerPlatforms.DedicatedServer, "Server" }
         };
 
-        public static BuildAssetAnalysis AnalyzeEnabledBuildScenes() {
-            string[] scenes = GetEnabledBuildScenes();
-            if (scenes.Length == 0) {
-                throw new InvalidOperationException("No enabled scenes in Build Settings.");
-            }
+        private static BuildTarget? analysisBuildTarget;
 
-            string[] dependencies;
+        public static BuildAssetAnalysis AnalyzeEnabledBuildScenes(BuildTarget? target = null) {
+            analysisBuildTarget = target;
             try {
-                EditorUtility.DisplayProgressBar("PrimeSDK Build Analysis", "Collecting scene dependencies...", 0.15f);
-                dependencies = AssetDatabase.GetDependencies(scenes, true);
+                string[] scenes = GetEnabledBuildScenes();
+                if (scenes.Length == 0) {
+                    throw new InvalidOperationException("No enabled scenes in Build Settings.");
+                }
+
+                string[] dependencies;
+                try {
+                    EditorUtility.DisplayProgressBar("PrimeSDK Build Analysis", "Collecting scene dependencies...", 0.15f);
+                    dependencies = AssetDatabase.GetDependencies(scenes, true);
+                }
+                finally {
+                    EditorUtility.ClearProgressBar();
+                }
+
+                BuildAssetAnalysis analysis = new();
+                HashSet<string> uniquePaths = new(dependencies ?? Array.Empty<string>());
+                int index = 0;
+                foreach (string path in uniquePaths) {
+                    index++;
+                    if (index % 250 == 0) {
+                        EditorUtility.DisplayProgressBar("PrimeSDK Build Analysis", "Analyzing assets...", index / Mathf.Max(1f, uniquePaths.Count));
+                    }
+
+                    if (!IsProjectAssetPath(path)) {
+                        continue;
+                    }
+
+                    Type assetType = AssetDatabase.GetMainAssetTypeAtPath(path);
+                    BuildAssetCategory category = Categorize(path, assetType);
+                    long sourceSizeBytes = GetFileSizeForAssetPath(path);
+                    long sizeBytes = EstimateBuildSizeForAssetPath(path, assetType, category, sourceSizeBytes);
+                    BuildAssetInfo assetInfo = new() {
+                        Path = path,
+                        SizeBytes = sizeBytes,
+                        SourceSizeBytes = sourceSizeBytes,
+                        TypeName = assetType != null ? assetType.Name : "Unknown",
+                        Category = category
+                    };
+                    analysis.Assets.Add(assetInfo);
+                    analysis.TotalSizeBytes += sizeBytes;
+                }
+
+                EditorUtility.ClearProgressBar();
+                analysis.Assets.Sort((left, right) => right.SizeBytes.CompareTo(left.SizeBytes));
+                SaveReport(analysis);
+                return analysis;
             }
             finally {
-                EditorUtility.ClearProgressBar();
+                analysisBuildTarget = null;
             }
-
-            BuildAssetAnalysis analysis = new();
-            HashSet<string> uniquePaths = new(dependencies ?? Array.Empty<string>());
-            int index = 0;
-            foreach (string path in uniquePaths) {
-                index++;
-                if (index % 250 == 0) {
-                    EditorUtility.DisplayProgressBar("PrimeSDK Build Analysis", "Analyzing assets...", index / Mathf.Max(1f, uniquePaths.Count));
-                }
-
-                if (!IsProjectAssetPath(path)) {
-                    continue;
-                }
-
-                Type assetType = AssetDatabase.GetMainAssetTypeAtPath(path);
-                long sizeBytes = GetFileSizeForAssetPath(path);
-                BuildAssetInfo assetInfo = new() {
-                    Path = path,
-                    SizeBytes = sizeBytes,
-                    TypeName = assetType != null ? assetType.Name : "Unknown",
-                    Category = Categorize(path, assetType)
-                };
-                analysis.Assets.Add(assetInfo);
-                analysis.TotalSizeBytes += sizeBytes;
-            }
-
-            EditorUtility.ClearProgressBar();
-            analysis.Assets.Sort((left, right) => right.SizeBytes.CompareTo(left.SizeBytes));
-            SaveReport(analysis);
-            return analysis;
         }
 
         public static BuildAssetOptimizationPlan CreateOptimizationPlan(BuildAssetAnalysis analysis, BuildAssetOptimizationProfile profile) {
@@ -875,13 +887,161 @@ namespace PrimeGames.SDK.Editor {
                 builder.AppendLine(analysis.StatusMessage);
                 builder.AppendLine();
                 foreach (BuildAssetInfo asset in analysis.Assets.Take(200)) {
-                    builder.AppendLine($"{FormatBytes(asset.SizeBytes),10} | {asset.Category,-8} | {asset.Path}");
+                    builder.AppendLine($"{FormatBytes(asset.SizeBytes),10} estimated | {FormatBytes(asset.SourceSizeBytes),10} source | {asset.Category,-8} | {asset.Path}");
                 }
                 File.WriteAllText(reportPath, builder.ToString());
             }
             catch (Exception exception) {
                 Logger.CreateWarning(nameof(BuildAssetAnalyzer), "Failed to save build analysis report", exception.Message);
             }
+        }
+
+        private static long EstimateBuildSizeForAssetPath(string path, Type assetType, BuildAssetCategory category, long sourceSizeBytes) {
+            try {
+                return category switch {
+                    BuildAssetCategory.Texture => EstimateTextureBuildSize(path, sourceSizeBytes),
+                    BuildAssetCategory.Audio => EstimateAudioBuildSize(path, sourceSizeBytes),
+                    BuildAssetCategory.Model => EstimateModelBuildSize(path, sourceSizeBytes),
+                    BuildAssetCategory.Material => Math.Max(512, sourceSizeBytes),
+                    BuildAssetCategory.Shader => Math.Max(1024, sourceSizeBytes),
+                    BuildAssetCategory.Font => Math.Max(1024, sourceSizeBytes),
+                    _ => sourceSizeBytes
+                };
+            }
+            catch (Exception exception) {
+                Logger.CreateWarning(nameof(BuildAssetAnalyzer), "Failed to estimate build size", path, exception.Message);
+                return sourceSizeBytes;
+            }
+        }
+
+        private static long EstimateTextureBuildSize(string path, long sourceSizeBytes) {
+            if (Path.GetExtension(path).Equals(".spriteatlasv2", StringComparison.OrdinalIgnoreCase)) {
+                return sourceSizeBytes;
+            }
+
+            if (AssetImporter.GetAtPath(path) is not TextureImporter importer) {
+                return sourceSizeBytes;
+            }
+
+            Texture2D texture = AssetDatabase.LoadAssetAtPath<Texture2D>(path);
+            if (texture == null) {
+                return sourceSizeBytes;
+            }
+
+            TextureImporterPlatformSettings settings = GetEffectiveTexturePlatformSettings(importer);
+            int maxSize = settings.maxTextureSize > 0 ? settings.maxTextureSize : importer.maxTextureSize;
+            int width = texture.width;
+            int height = texture.height;
+            if (maxSize > 0 && (width > maxSize || height > maxSize)) {
+                float scale = width >= height ? maxSize / (float)width : maxSize / (float)height;
+                width = Mathf.Max(4, Mathf.RoundToInt(width * scale));
+                height = Mathf.Max(4, Mathf.RoundToInt(height * scale));
+            }
+
+            TextureImporterFormat format = settings.format;
+            float bitsPerPixel = GetEstimatedTextureBitsPerPixel(format, importer.textureCompression);
+            long estimated = Mathf.CeilToInt(width * height * bitsPerPixel / 8.0f);
+            if (importer.mipmapEnabled) {
+                estimated = Mathf.CeilToInt(estimated * 1.33f);
+            }
+            return Math.Max(512, estimated);
+        }
+
+        private static TextureImporterPlatformSettings GetEffectiveTexturePlatformSettings(TextureImporter importer) {
+            string platformName = GetActiveTexturePlatformName();
+            TextureImporterPlatformSettings platformSettings = importer.GetPlatformTextureSettings(platformName);
+            if (platformSettings.overridden) {
+                return platformSettings;
+            }
+            return importer.GetDefaultPlatformTextureSettings();
+        }
+
+        private static string GetActiveTexturePlatformName() {
+            return (analysisBuildTarget ?? EditorUserBuildSettings.activeBuildTarget) switch {
+                BuildTarget.WebGL => "WebGL",
+                BuildTarget.Android => "Android",
+                BuildTarget.iOS => "iPhone",
+                BuildTarget.StandaloneWindows or BuildTarget.StandaloneWindows64 or BuildTarget.StandaloneOSX or BuildTarget.StandaloneLinux64 => "Standalone",
+                _ => "DefaultTexturePlatform"
+            };
+        }
+
+        private static float GetEstimatedTextureBitsPerPixel(TextureImporterFormat format, TextureImporterCompression compression) {
+            return format.ToString() switch {
+                "RGBA32" => 32,
+                "ARGB32" => 32,
+                "BGRA32" => 32,
+                "RGB24" => 24,
+                "Alpha8" => 8,
+                "R8" => 8,
+                "R16" => 16,
+                "RG16" => 16,
+                "RG32" => 32,
+                "RGBA64" => 64,
+                "DXT1" => 4,
+                "DXT5" => 8,
+                "BC4" => 4,
+                "BC5" => 8,
+                "BC6H" => 8,
+                "BC7" => 8,
+                "ETC_RGB4" => 4,
+                "ETC2_RGB4" => 4,
+                "ETC2_RGBA8" => 8,
+                "ETC2_RGBA1" => 4,
+                "PVRTC_RGB2" => 2,
+                "PVRTC_RGBA2" => 2,
+                "PVRTC_RGB4" => 4,
+                "PVRTC_RGBA4" => 4,
+                "ASTC_4x4" => 8,
+                "ASTC_5x5" => 5.12f,
+                "ASTC_6x6" => 3.56f,
+                "ASTC_8x8" => 2,
+                "ASTC_10x10" => 1.28f,
+                "ASTC_12x12" => 0.89f,
+                "Automatic" => compression == TextureImporterCompression.Uncompressed ? 32 : 8,
+                "AutomaticCompressed" => compression == TextureImporterCompression.Uncompressed ? 32 : 8,
+                _ => compression == TextureImporterCompression.Uncompressed ? 32 : 8
+            };
+        }
+
+        private static long EstimateAudioBuildSize(string path, long sourceSizeBytes) {
+            if (AssetImporter.GetAtPath(path) is not AudioImporter importer) {
+                return sourceSizeBytes;
+            }
+
+            AudioImporterSampleSettings settings = importer.defaultSampleSettings;
+            double ratio = settings.compressionFormat switch {
+                AudioCompressionFormat.PCM => 1.0,
+                AudioCompressionFormat.ADPCM => 0.28,
+                AudioCompressionFormat.Vorbis => Math.Max(0.08, settings.quality),
+                AudioCompressionFormat.MP3 => Math.Max(0.08, settings.quality),
+                _ => 0.6
+            };
+            if (settings.loadType == AudioClipLoadType.DecompressOnLoad && settings.compressionFormat != AudioCompressionFormat.PCM) {
+                ratio = Math.Max(ratio, 0.75);
+            }
+            if (importer.forceToMono) {
+                ratio *= 0.55;
+            }
+            return Math.Max(1024, (long)(sourceSizeBytes * ratio));
+        }
+
+        private static long EstimateModelBuildSize(string path, long sourceSizeBytes) {
+            if (AssetImporter.GetAtPath(path) is not ModelImporter importer) {
+                return sourceSizeBytes;
+            }
+
+            double ratio = importer.meshCompression switch {
+                ModelImporterMeshCompression.Off => 1.0,
+                ModelImporterMeshCompression.Low => 0.85,
+                ModelImporterMeshCompression.Medium => 0.7,
+                ModelImporterMeshCompression.High => 0.55,
+                _ => 1.0
+            };
+            if (!importer.isReadable) {
+                ratio *= 0.85;
+            }
+            return Math.Max(1024, (long)(sourceSizeBytes * ratio));
         }
 
     }

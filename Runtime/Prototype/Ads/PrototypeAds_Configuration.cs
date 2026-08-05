@@ -4,42 +4,41 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-namespace PrimeGames.SDK.PrimeWeb {
+namespace PrimeGames.SDK.Prototype {
 
     [Serializable]
-    public class CountdownMessageLocalization {
+    public class PrototypeCountdownMessageLocalization {
 
         public LanguageType Language = LanguageType.English;
         public string Message = "Ad starts in";
 
     }
 
-    [ProviderConfiguration(typeof(PrimeWebAds))]
-    public class PrimeWebAds_Configuration : PropertyGroup {
+    [ProviderConfiguration(typeof(PrototypeAds))]
+    public class PrototypeAds_Configuration : PropertyGroup {
 
-        public override string Name => nameof(PrimeWebAds);
+        public override string Name => nameof(PrototypeAds);
 
-        [field: SerializeField] public bool AdBlockDetectionEnabled { get; private set; } = true;
         [field: SerializeField] public bool AutoAdsEnabled { get; private set; } = false;
         [field: SerializeField] public bool PauseDuringCountdown { get; private set; } = true;
         [field: SerializeField] public float AutoAdsIntervalSeconds { get; private set; } = 120.0f;
         [field: SerializeField] public float AutoAdsStartDelaySeconds { get; private set; } = 120.0f;
         [field: SerializeField] public int CountdownSeconds { get; private set; } = 2;
         [SerializeField] private string countdownMessage = "Ad starts in";
-        [SerializeField] private List<CountdownMessageLocalization> countdownLocalizations = CreateDefaultCountdownLocalizations();
+        [SerializeField] private List<PrototypeCountdownMessageLocalization> countdownLocalizations = CreateDefaultCountdownLocalizations();
 
-        public List<CountdownMessageLocalization> CountdownLocalizations => countdownLocalizations;
+        public List<PrototypeCountdownMessageLocalization> CountdownLocalizations => countdownLocalizations;
 
         public string GetCountdownMessage(LanguageType language) {
-            CountdownMessageLocalization localization = countdownLocalizations?.FirstOrDefault(item => item != null && item.Language == language);
+            PrototypeCountdownMessageLocalization localization = countdownLocalizations?.FirstOrDefault(item => item != null && item.Language == language);
             if (localization != null && !string.IsNullOrWhiteSpace(localization.Message)) {
                 return localization.Message;
             }
             return countdownMessage;
         }
 
-        private static List<CountdownMessageLocalization> CreateDefaultCountdownLocalizations() {
-            return new List<CountdownMessageLocalization> {
+        private static List<PrototypeCountdownMessageLocalization> CreateDefaultCountdownLocalizations() {
+            return new List<PrototypeCountdownMessageLocalization> {
                 new() { Language = LanguageType.English, Message = "Ad starts in" },
                 new() { Language = LanguageType.Russian, Message = "\u0420\u0435\u043a\u043b\u0430\u043c\u0430 \u043d\u0430\u0447\u043d\u0451\u0442\u0441\u044f \u0447\u0435\u0440\u0435\u0437" },
                 new() { Language = LanguageType.Japanese, Message = "\u5e83\u544a\u958b\u59cb\u307e\u3067" },
@@ -71,19 +70,14 @@ namespace PrimeGames.SDK.PrimeWeb {
         public override BoolProperty[] GetBoolProperties() {
             return new BoolProperty[] {
                 new(
-                    "AdBlock Detection Enabled",
-                    getter: () => AdBlockDetectionEnabled,
-                    setter: (value) => { AdBlockDetectionEnabled = value; }
-                ),
-                new(
                     "Auto Ads Enabled",
                     getter: () => AutoAdsEnabled,
-                    setter: (value) => { AutoAdsEnabled = value; }
+                    setter: value => { AutoAdsEnabled = value; }
                 ),
                 new(
                     "Pause During Countdown",
                     getter: () => PauseDuringCountdown,
-                    setter: (value) => { PauseDuringCountdown = value; }
+                    setter: value => { PauseDuringCountdown = value; }
                 )
             };
         }
@@ -93,7 +87,7 @@ namespace PrimeGames.SDK.PrimeWeb {
                 new(
                     "Countdown Seconds",
                     getter: () => CountdownSeconds,
-                    setter: (value) => { CountdownSeconds = value; }
+                    setter: value => { CountdownSeconds = value; }
                 )
             };
         }
@@ -103,18 +97,14 @@ namespace PrimeGames.SDK.PrimeWeb {
                 new(
                     "Auto Ads Interval Seconds",
                     getter: () => AutoAdsIntervalSeconds,
-                    setter: (value) => { AutoAdsIntervalSeconds = value; }
+                    setter: value => { AutoAdsIntervalSeconds = value; }
                 ),
                 new(
                     "Auto Ads Start Delay Seconds",
                     getter: () => AutoAdsStartDelaySeconds,
-                    setter: (value) => { AutoAdsStartDelaySeconds = value; }
+                    setter: value => { AutoAdsStartDelaySeconds = value; }
                 )
             };
-        }
-
-        public override StringProperty[] GetStringProperties() {
-            return Array.Empty<StringProperty>();
         }
 
     }

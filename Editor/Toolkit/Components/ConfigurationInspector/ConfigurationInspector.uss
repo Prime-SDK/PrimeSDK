@@ -1,0 +1,87 @@
+.configuration-inspector-enum-field > Label {
+    width: 175px;
+}
+
+.countdown-localizations-section {
+    margin-top: 8px;
+    padding-top: 6px;
+    border-top-width: 1px;
+    border-top-color: rgba(255, 255, 255, 0.08);
+}
+
+.countdown-localizations-header {
+    flex-direction: row;
+    align-items: center;
+    margin-left: 2px;
+    margin-right: 6px;
+}
+
+.countdown-localizations-title {
+    flex-grow: 1;
+    -unity-font-style: bold;
+    color: rgb(209, 209, 209);
+}
+
+.countdown-localizations-toggle-button {
+    width: 48px;
+    height: 22px;
+}
+
+.countdown-localizations-add-button {
+    width: 24px;
+    height: 22px;
+    margin-left: 2px;
+}
+
+.countdown-localizations-reset-button {
+    width: 52px;
+    height: 22px;
+    margin-left: 2px;
+}
+
+.countdown-localizations-list {
+    margin-top: 4px;
+}
+
+.countdown-localizations-row {
+    flex-direction: row;
+    align-items: center;
+    margin-top: 5px;
+    margin-left: 2px;
+    margin-right: 6px;
+}
+
+.countdown-localizations-language {
+    width: 88px;
+    min-width: 88px;
+    max-width: 88px;
+}
+
+.countdown-localizations-message {
+    width: 150px;
+    min-width: 150px;
+    max-width: 150px;
+    flex-grow: 0;
+    flex-shrink: 0;
+    margin-left: 4px;
+}
+
+.countdown-localizations-remove-button {
+    width: 24px;
+    height: 22px;
+    margin-left: 4px;
+}
+
+.legacy-version-section {
+    margin-top: 8px;
+    padding-top: 6px;
+    border-top-width: 1px;
+    border-top-color: rgba(255, 107, 0, 0.18);
+}
+
+.legacy-version-title {
+    -unity-font-style: bold;
+    margin-bottom: 4px;
+    padding-left: 2px;
+    color: rgb(255, 140, 0);
+}

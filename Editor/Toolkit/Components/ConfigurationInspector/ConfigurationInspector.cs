@@ -1,9 +1,11 @@
 using PrimeGames.SDK.Common;
 using PrimeGames.SDK.SourceGenerator;
+using System.Collections;
 using System;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Linq;
+using UnityEditor;
 using UnityEditor.UIElements;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -13,9 +15,9 @@ namespace PrimeGames.SDK.Editor {
 
     internal partial class ConfigurationInspector : VisualElement {
 
-        private const int EnumFieldWidth = 175;
         private const string LegacyVersionSectionName = "Legacy Version";
         private const string LegacyVersionToggleName = "Enabled";
+        private const string CountdownLocalizationsVisibleKey = "CountdownLocalizationsVisible";
         private static readonly Dictionary<string, string> PlatformIconAliases = new() {
             { "Xiaomi", "XiaomiGames" }
         };
@@ -191,7 +193,199 @@ namespace PrimeGames.SDK.Editor {
                 });
                 contentContainer.Add(floatField);
             }
+            CreateCountdownLocalizationSection(contentContainer, propertyGroup, preferencesKey);
             CreateLegacyVersionSection(contentContainer, propertyGroup, preferencesKey);
+        }
+
+        private void CreateCountdownLocalizationSection(VisualElement contentContainer, PropertyGroup propertyGroup, string preferencesKey) {
+            if (propertyGroup.GetType().Name != "PrimeWebAds_Configuration" && propertyGroup.GetType().Name != "PrototypeAds_Configuration") {
+                return;
+            }
+
+            PropertyInfo localizationsProperty = propertyGroup.GetType().GetProperty("CountdownLocalizations", BindingFlags.Instance | BindingFlags.Public);
+            if (localizationsProperty?.GetValue(propertyGroup) is not IList localizations) {
+                return;
+            }
+
+            bool isVisible = PackageTools.GetPrefsBool(CountdownLocalizationsVisibleKey, false);
+            VisualElement section = new();
+            section.AddToClassList("countdown-localizations-section");
+
+            VisualElement header = new();
+            header.AddToClassList("countdown-localizations-header");
+            section.Add(header);
+
+            Label title = new($"Countdown Localizations ({localizations.Count})") {
+                pickingMode = PickingMode.Ignore
+            };
+            title.AddToClassList("countdown-localizations-title");
+            header.Add(title);
+
+            Button toggleButton = new(() => {
+                PackageTools.SetPrefsBool(CountdownLocalizationsVisibleKey, !isVisible);
+                CreatePropertyFields(contentContainer, propertyGroup, preferencesKey, true);
+            }) {
+                text = isVisible ? "Hide" : "Show"
+            };
+            toggleButton.AddToClassList("countdown-localizations-toggle-button");
+            header.Add(toggleButton);
+
+            Button addButton = new(() => {
+                AddCountdownLocalization(localizations);
+                PackageTools.SetPrefsBool(CountdownLocalizationsVisibleKey, true);
+                WritePropertyGroup(preferencesKey, propertyGroup);
+                CreatePropertyFields(contentContainer, propertyGroup, preferencesKey, true);
+            }) {
+                text = "+"
+            };
+            addButton.AddToClassList("countdown-localizations-add-button");
+            header.Add(addButton);
+
+            Button resetButton = new(() => {
+                ResetCountdownLocalizations(localizations);
+                PackageTools.SetPrefsBool(CountdownLocalizationsVisibleKey, true);
+                WritePropertyGroup(preferencesKey, propertyGroup);
+                CreatePropertyFields(contentContainer, propertyGroup, preferencesKey, true);
+            }) {
+                text = "Reset"
+            };
+            resetButton.AddToClassList("countdown-localizations-reset-button");
+            header.Add(resetButton);
+
+            VisualElement listContainer = new();
+            listContainer.AddToClassList("countdown-localizations-list");
+            listContainer.style.display = isVisible ? DisplayStyle.Flex : DisplayStyle.None;
+            section.Add(listContainer);
+
+            for (int index = 0; index < localizations.Count; index++) {
+                object localization = localizations[index];
+                if (localization == null) {
+                    continue;
+                }
+                listContainer.Add(CreateCountdownLocalizationRow(localizations, index, localization, contentContainer, propertyGroup, preferencesKey));
+            }
+
+            contentContainer.Add(section);
+        }
+
+        private VisualElement CreateCountdownLocalizationRow(IList localizations, int index, object localization, VisualElement contentContainer, PropertyGroup propertyGroup, string preferencesKey) {
+            Type localizationType = localization.GetType();
+            FieldInfo languageField = localizationType.GetField("Language", BindingFlags.Instance | BindingFlags.Public);
+            FieldInfo messageField = localizationType.GetField("Message", BindingFlags.Instance | BindingFlags.Public);
+
+            VisualElement row = new();
+            row.AddToClassList("countdown-localizations-row");
+
+            Enum language = languageField?.GetValue(localization) as Enum ?? LanguageType.English;
+            EnumField languageFieldElement = new(language) {
+                value = language
+            };
+            languageFieldElement.AddToClassList("countdown-localizations-language");
+            languageFieldElement.RegisterValueChangedCallback(evt => {
+                languageField?.SetValue(localization, evt.newValue);
+                WritePropertyGroup(preferencesKey, propertyGroup);
+            });
+            row.Add(languageFieldElement);
+
+            TextField messageFieldElement = new() {
+                value = messageField?.GetValue(localization) as string ?? string.Empty
+            };
+            messageFieldElement.AddToClassList("countdown-localizations-message");
+            messageFieldElement.RegisterValueChangedCallback(evt => {
+                messageField?.SetValue(localization, evt.newValue);
+                WritePropertyGroup(preferencesKey, propertyGroup);
+            });
+            row.Add(messageFieldElement);
+
+            Button removeButton = new(() => {
+                localizations.RemoveAt(index);
+                WritePropertyGroup(preferencesKey, propertyGroup);
+                CreatePropertyFields(contentContainer, propertyGroup, preferencesKey, true);
+            }) {
+                text = "-"
+            };
+            removeButton.AddToClassList("countdown-localizations-remove-button");
+            row.Add(removeButton);
+
+            return row;
+        }
+
+        private void AddCountdownLocalization(IList localizations) {
+            Type localizationType = localizations.GetType().IsGenericType ? localizations.GetType().GetGenericArguments()[0] : null;
+            if (localizationType == null) {
+                return;
+            }
+
+            LanguageType language = GetFirstMissingCountdownLanguage(localizations);
+            localizations.Add(CreateCountdownLocalization(localizationType, language));
+        }
+
+        private void ResetCountdownLocalizations(IList localizations) {
+            Type localizationType = localizations.GetType().IsGenericType ? localizations.GetType().GetGenericArguments()[0] : null;
+            if (localizationType == null) {
+                return;
+            }
+
+            localizations.Clear();
+            foreach (LanguageType language in Enum.GetValues(typeof(LanguageType))) {
+                localizations.Add(CreateCountdownLocalization(localizationType, language));
+            }
+        }
+
+        private static object CreateCountdownLocalization(Type localizationType, LanguageType language) {
+            object localization = Activator.CreateInstance(localizationType);
+            FieldInfo languageField = localizationType.GetField("Language", BindingFlags.Instance | BindingFlags.Public);
+            FieldInfo messageField = localizationType.GetField("Message", BindingFlags.Instance | BindingFlags.Public);
+            languageField?.SetValue(localization, language);
+            messageField?.SetValue(localization, GetDefaultCountdownMessageSafe(language));
+            return localization;
+        }
+
+        private static LanguageType GetFirstMissingCountdownLanguage(IList localizations) {
+            HashSet<LanguageType> usedLanguages = new();
+            foreach (object localization in localizations) {
+                FieldInfo languageField = localization?.GetType().GetField("Language", BindingFlags.Instance | BindingFlags.Public);
+                if (languageField?.GetValue(localization) is LanguageType language) {
+                    usedLanguages.Add(language);
+                }
+            }
+
+            foreach (LanguageType language in Enum.GetValues(typeof(LanguageType))) {
+                if (!usedLanguages.Contains(language)) {
+                    return language;
+                }
+            }
+            return LanguageType.English;
+        }
+
+        private static string GetDefaultCountdownMessageSafe(LanguageType language) {
+            return language switch {
+                LanguageType.Russian => "\u0420\u0435\u043a\u043b\u0430\u043c\u0430 \u043d\u0430\u0447\u043d\u0451\u0442\u0441\u044f \u0447\u0435\u0440\u0435\u0437",
+                LanguageType.Japanese => "\u5e83\u544a\u958b\u59cb\u307e\u3067",
+                LanguageType.Chinese => "\u5e7f\u544a\u5c06\u5728",
+                LanguageType.Turkish => "Reklam \u015fu s\u00fcre i\u00e7inde ba\u015flayacak",
+                LanguageType.Hindi => "\u0935\u093f\u091c\u094d\u091e\u093e\u092a\u0928 \u0936\u0941\u0930\u0942 \u0939\u094b\u0917\u093e",
+                LanguageType.Korean => "\uad11\uace0 \uc2dc\uc791\uae4c\uc9c0",
+                LanguageType.Portuguese => "O an\u00fancio come\u00e7a em",
+                LanguageType.Indonesian => "Iklan dimulai dalam",
+                LanguageType.German => "Werbung startet in",
+                LanguageType.Spanish => "El anuncio empieza en",
+                LanguageType.Italian => "L'annuncio inizia tra",
+                LanguageType.Ukrainian => "\u0420\u0435\u043a\u043b\u0430\u043c\u0430 \u043f\u043e\u0447\u043d\u0435\u0442\u044c\u0441\u044f \u0447\u0435\u0440\u0435\u0437",
+                LanguageType.Polish => "Reklama zacznie si\u0119 za",
+                LanguageType.French => "La publicit\u00e9 commence dans",
+                LanguageType.Danish => "Annoncen starter om",
+                LanguageType.Czech => "Reklama za\u010dne za",
+                LanguageType.Afrikaans => "Advertensie begin oor",
+                LanguageType.Icelandic => "Augl\u00fdsing byrjar eftir",
+                LanguageType.Norwegian => "Annonse starter om",
+                LanguageType.Swedish => "Annonsen startar om",
+                LanguageType.Dutch => "Advertentie start over",
+                LanguageType.Slovak => "Reklama za\u010dne o",
+                LanguageType.Thai => "\u0e42\u0e06\u0e29\u0e13\u0e32\u0e08\u0e30\u0e40\u0e23\u0e34\u0e48\u0e21\u0e43\u0e19",
+                LanguageType.Vietnamese => "Qu\u1ea3ng c\u00e1o b\u1eaft \u0111\u1ea7u sau",
+                _ => "Ad starts in"
+            };
         }
 
         private void CreateLegacyVersionSection(VisualElement contentContainer, PropertyGroup propertyGroup, string preferencesKey) {
@@ -201,18 +395,12 @@ namespace PrimeGames.SDK.Editor {
             }
 
             VisualElement section = new();
-            section.style.marginTop = 8;
-            section.style.paddingTop = 6;
-            section.style.borderTopWidth = 1;
-            section.style.borderTopColor = new Color(1.0f, 0.42f, 0.0f, 0.18f);
+            section.AddToClassList("legacy-version-section");
 
             Label title = new(LegacyVersionSectionName) {
                 pickingMode = PickingMode.Ignore
             };
-            title.style.color = new Color(1.0f, 0.55f, 0.0f, 1.0f);
-            title.style.unityFontStyleAndWeight = FontStyle.Bold;
-            title.style.marginBottom = 4;
-            title.style.paddingLeft = 2;
+            title.AddToClassList("legacy-version-title");
             section.Add(title);
 
             BoolField legacyVersionField = new() {
@@ -335,13 +523,15 @@ namespace PrimeGames.SDK.Editor {
                 SettingsGroup settingsGroup = new();
                 string preferencesKey = providerConfiguration.GetType().Name;
                 CreatePropertyFields(settingsGroup, providerConfiguration, preferencesKey, false);
-                settingsFoldout.Add(settingsGroup);
+                if (settingsGroup.contentContainer.childCount > 0) {
+                    settingsFoldout.Add(settingsGroup);
+                }
             }
         }
 
         private void CreateEnumField(string name, Enum initialValue, VisualElement parent, Action<Enum> onValueChanged) {
             EnumField enumField = new(name.InsertSpacing(), initialValue);
-            enumField.Q<Label>().style.width = EnumFieldWidth;
+            enumField.AddToClassList("configuration-inspector-enum-field");
             enumField.RegisterValueChangedCallback(callback => {
                 onValueChanged((Enum)callback.newValue);
             });

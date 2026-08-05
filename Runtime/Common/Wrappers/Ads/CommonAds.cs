@@ -9,6 +9,17 @@ namespace PrimeGames.SDK.Common
     {
 
         protected readonly IEventAggregator eventAggregator;
+        protected bool countdownBeforeInterstitialEnabled;
+        protected int configuredCountdownSeconds = 2;
+        protected bool configuredPauseDuringCountdown = true;
+        protected int configuredCountdownAdsIntervalSeconds;
+        protected float configuredCountdownStartDelaySeconds;
+        protected Func<string> configuredCountdownTitleProvider;
+        protected Func<string> configuredCountdownMessageProvider;
+        private bool invokingInterstitialAfterCountdown;
+        private Action activeCountdownCancel;
+        private bool countdownStopped;
+        private int countdownRunId;
 
         public CommonAds(IEventAggregator eventAggregator)
         {
@@ -87,6 +98,12 @@ namespace PrimeGames.SDK.Common
         public void InvokeInterstitial(InterstitialParameters parameters)
         {
             Logger.CreateText(this, nameof(InvokeInterstitial), parameters.PlacementId);
+            if (countdownBeforeInterstitialEnabled && !countdownStopped && !invokingInterstitialAfterCountdown)
+            {
+                InvokeConfiguredCountdown(parameters);
+                return;
+            }
+
             try
             {
                 // Check availability
@@ -155,6 +172,9 @@ namespace PrimeGames.SDK.Common
             catch (Exception exception)
             {
                 Logger.CreateError(this, nameof(InvokeInterstitial), exception);
+                parameters.OnClose?.Invoke(false);
+                PauseSourceEvent pauseSourceEvent = new(nameof(InvokeInterstitial), false);
+                eventAggregator.Publish(this, pauseSourceEvent);
             }
         }
 
@@ -168,6 +188,354 @@ namespace PrimeGames.SDK.Common
                 OnAdBlockDetected = onAdBlockDetected
             };
             InvokeInterstitial(parameters);
+        }
+
+        public void InvokeCountdown(Action onOpen = null, Action<bool> onClose = null)
+        {
+            countdownStopped = false;
+            int runId = ++countdownRunId;
+            AutoAdsCountdownView.StartAutoAds(
+                configuredCountdownStartDelaySeconds,
+                configuredCountdownAdsIntervalSeconds,
+                (_, completeAutoAdsCycle) => {
+                    if (countdownStopped || runId != countdownRunId)
+                    {
+                        return false;
+                    }
+                    string title = configuredCountdownTitleProvider?.Invoke();
+                    string messageFormat = configuredCountdownMessageProvider?.Invoke();
+                    return InvokeCountdownInternal(
+                        onOpen,
+                        isSuccess => {
+                            onClose?.Invoke(isSuccess);
+                            completeAutoAdsCycle?.Invoke(isSuccess);
+                        },
+                        configuredCountdownSeconds,
+                        title,
+                        messageFormat,
+                        configuredPauseDuringCountdown,
+                        0
+                    );
+                }
+            );
+        }
+
+        public void StopCountdown()
+        {
+            Logger.CreateText(this, nameof(StopCountdown));
+            countdownStopped = true;
+            countdownRunId++;
+            Action cancelCountdown = activeCountdownCancel;
+            activeCountdownCancel = null;
+            AutoAdsCountdownView.StopAutoAds();
+            cancelCountdown?.Invoke();
+            eventAggregator.Publish(this, new PauseSourceEvent(nameof(InvokeCountdown), false));
+        }
+
+        protected bool InvokeCountdownInternal(Action onOpen, Action<bool> onClose, int countdownSeconds, string messageFormat, bool pauseDuringCountdown, int adsIntervalSeconds)
+        {
+            return InvokeCountdownInternal(onOpen, onClose, countdownSeconds, AutoAdsCountdownView.GetAdvertisementTitle(LanguageType.English), messageFormat, pauseDuringCountdown, adsIntervalSeconds);
+        }
+
+        protected bool InvokeCountdownInternal(Action onOpen, Action<bool> onClose, int countdownSeconds, string title, string messageFormat, bool pauseDuringCountdown, int adsIntervalSeconds)
+        {
+            Logger.CreateText(this, nameof(InvokeCountdownInternal), countdownSeconds);
+            if (!CanShowCountdownInterstitial(adsIntervalSeconds, onClose, true)) {
+                return false;
+            }
+
+            try
+            {
+                if (pauseDuringCountdown)
+                {
+                    eventAggregator.Publish(this, new PauseSourceEvent(nameof(InvokeCountdown), true));
+                }
+
+                onOpen?.Invoke();
+                activeCountdownCancel = () =>
+                {
+                    if (pauseDuringCountdown)
+                    {
+                        eventAggregator.Publish(this, new PauseSourceEvent(nameof(InvokeCountdown), false));
+                    }
+                    onClose?.Invoke(false);
+                };
+                AutoAdsCountdownView.Show(countdownSeconds, title, messageFormat, () =>
+                {
+                    activeCountdownCancel = null;
+                    InterstitialParameters parameters = new()
+                    {
+                        AdsIntervalSeconds = adsIntervalSeconds,
+                        OnOpen = null,
+                        OnClose = isSuccess =>
+                        {
+                            activeCountdownCancel = null;
+                            onClose?.Invoke(isSuccess);
+                            if (pauseDuringCountdown)
+                            {
+                                eventAggregator.Publish(this, new PauseSourceEvent(nameof(InvokeCountdown), false));
+                            }
+                        }
+                    };
+                    invokingInterstitialAfterCountdown = true;
+                    try {
+                        InvokeInterstitial(parameters);
+                    }
+                    finally {
+                        invokingInterstitialAfterCountdown = false;
+                    }
+                });
+                return true;
+            }
+            catch (Exception exception)
+            {
+                Logger.CreateError(this, nameof(InvokeCountdownInternal), exception);
+                AutoAdsCountdownView.Hide();
+                if (pauseDuringCountdown)
+                {
+                    eventAggregator.Publish(this, new PauseSourceEvent(nameof(InvokeCountdown), false));
+                }
+                activeCountdownCancel = null;
+                onClose?.Invoke(false);
+                return false;
+            }
+        }
+
+        protected void StartAutoCountDownAds(float startDelaySeconds, float intervalSeconds, int countdownSeconds, string messageFormat, bool pauseDuringCountdown)
+        {
+            countdownStopped = false;
+            int runId = ++countdownRunId;
+            AutoAdsCountdownView.StartAutoAds(startDelaySeconds, intervalSeconds, (onOpen, onClose) =>
+            {
+                if (countdownStopped || runId != countdownRunId)
+                {
+                    return false;
+                }
+                return InvokeCountdownInternal(onOpen, onClose, countdownSeconds, messageFormat, pauseDuringCountdown, 0);
+            });
+        }
+
+        protected void StartAutoCountDownAds(float startDelaySeconds, float intervalSeconds, int countdownSeconds, Func<string> messageFormatProvider, bool pauseDuringCountdown)
+        {
+            countdownStopped = false;
+            int runId = ++countdownRunId;
+            AutoAdsCountdownView.StartAutoAds(startDelaySeconds, intervalSeconds, (onOpen, onClose) =>
+            {
+                if (countdownStopped || runId != countdownRunId)
+                {
+                    return false;
+                }
+                string messageFormat = messageFormatProvider?.Invoke();
+                return InvokeCountdownInternal(onOpen, onClose, countdownSeconds, messageFormat, pauseDuringCountdown, 0);
+            });
+        }
+
+        protected void StartAutoCountDownAds(float startDelaySeconds, float intervalSeconds, int countdownSeconds, Func<string> titleProvider, Func<string> messageFormatProvider, bool pauseDuringCountdown)
+        {
+            countdownStopped = false;
+            int runId = ++countdownRunId;
+            AutoAdsCountdownView.StartAutoAds(startDelaySeconds, intervalSeconds, (onOpen, onClose) =>
+            {
+                if (countdownStopped || runId != countdownRunId)
+                {
+                    return false;
+                }
+                string title = titleProvider?.Invoke();
+                string messageFormat = messageFormatProvider?.Invoke();
+                return InvokeCountdownInternal(onOpen, onClose, countdownSeconds, title, messageFormat, pauseDuringCountdown, 0);
+            });
+        }
+
+        protected void ConfigureCountdownBeforeInterstitial(int countdownSeconds, Func<string> titleProvider, Func<string> messageFormatProvider, bool pauseDuringCountdown, int adsIntervalSeconds)
+        {
+            countdownBeforeInterstitialEnabled = true;
+            ConfigureCountdownSettings(countdownSeconds, titleProvider, messageFormatProvider, pauseDuringCountdown, adsIntervalSeconds, configuredCountdownStartDelaySeconds);
+        }
+
+        protected void ConfigureCountdownStartDelay(float startDelaySeconds)
+        {
+            configuredCountdownStartDelaySeconds = Math.Max(0.0f, startDelaySeconds);
+        }
+
+        protected void ConfigureCountdownSettings(int countdownSeconds, Func<string> titleProvider, Func<string> messageFormatProvider, bool pauseDuringCountdown, int adsIntervalSeconds)
+        {
+            ConfigureCountdownSettings(countdownSeconds, titleProvider, messageFormatProvider, pauseDuringCountdown, adsIntervalSeconds, configuredCountdownStartDelaySeconds);
+        }
+
+        protected void ConfigureCountdownSettings(int countdownSeconds, Func<string> titleProvider, Func<string> messageFormatProvider, bool pauseDuringCountdown, int adsIntervalSeconds, float startDelaySeconds)
+        {
+            configuredCountdownSeconds = countdownSeconds;
+            configuredCountdownTitleProvider = titleProvider;
+            configuredCountdownMessageProvider = messageFormatProvider;
+            configuredPauseDuringCountdown = pauseDuringCountdown;
+            configuredCountdownAdsIntervalSeconds = adsIntervalSeconds;
+            configuredCountdownStartDelaySeconds = Math.Max(0.0f, startDelaySeconds);
+        }
+
+        protected static int ToAdsIntervalSeconds(float seconds)
+        {
+            return Math.Max(0, (int)Math.Ceiling(seconds));
+        }
+
+        private void InvokeConfiguredCountdown(InterstitialParameters parameters)
+        {
+            int runId = countdownRunId;
+            void invokeConfiguredCountdown()
+            {
+                if (countdownStopped || runId != countdownRunId)
+                {
+                    parameters.OnClose?.Invoke(false);
+                    return;
+                }
+
+                string title = configuredCountdownTitleProvider?.Invoke();
+                string messageFormat = configuredCountdownMessageProvider?.Invoke();
+                bool invoked = InvokeCountdownInternal(
+                    parameters.OnOpen,
+                    isSuccess => {
+                        parameters.OnClose?.Invoke(isSuccess);
+                    },
+                    configuredCountdownSeconds,
+                    title,
+                    messageFormat,
+                    configuredPauseDuringCountdown,
+                    parameters.AdsIntervalSeconds > 0 ? parameters.AdsIntervalSeconds : configuredCountdownAdsIntervalSeconds,
+                    parameters
+                );
+
+                if (!invoked) {
+                    parameters.OnClose?.Invoke(false);
+                }
+            }
+
+            if (configuredCountdownStartDelaySeconds > 0.0f)
+            {
+                AutoAdsCountdownView.Delay(configuredCountdownStartDelaySeconds, invokeConfiguredCountdown);
+                return;
+            }
+
+            invokeConfiguredCountdown();
+        }
+
+        private bool InvokeCountdownInternal(Action onOpen, Action<bool> onClose, int countdownSeconds, string title, string messageFormat, bool pauseDuringCountdown, int adsIntervalSeconds, InterstitialParameters interstitialParameters)
+        {
+            Logger.CreateText(this, nameof(InvokeCountdownInternal), countdownSeconds);
+            if (!CanShowCountdownInterstitial(adsIntervalSeconds, onClose, false)) {
+                return false;
+            }
+
+            try
+            {
+                if (pauseDuringCountdown)
+                {
+                    eventAggregator.Publish(this, new PauseSourceEvent(nameof(InvokeCountdown), true));
+                }
+
+                onOpen?.Invoke();
+                activeCountdownCancel = () =>
+                {
+                    if (pauseDuringCountdown)
+                    {
+                        eventAggregator.Publish(this, new PauseSourceEvent(nameof(InvokeCountdown), false));
+                    }
+                    onClose?.Invoke(false);
+                };
+                AutoAdsCountdownView.Show(countdownSeconds, title, messageFormat, () =>
+                {
+                    activeCountdownCancel = null;
+                    interstitialParameters.AdsIntervalSeconds = adsIntervalSeconds;
+                    interstitialParameters.OnOpen = null;
+                    interstitialParameters.OnClose = isSuccess =>
+                    {
+                        activeCountdownCancel = null;
+                        onClose?.Invoke(isSuccess);
+                        if (pauseDuringCountdown)
+                        {
+                            eventAggregator.Publish(this, new PauseSourceEvent(nameof(InvokeCountdown), false));
+                        }
+                    };
+
+                    invokingInterstitialAfterCountdown = true;
+                    try {
+                        InvokeInterstitial(interstitialParameters);
+                    }
+                    finally {
+                        invokingInterstitialAfterCountdown = false;
+                    }
+                });
+                return true;
+            }
+            catch (Exception exception)
+            {
+                Logger.CreateError(this, nameof(InvokeCountdownInternal), exception);
+                AutoAdsCountdownView.Hide();
+                if (pauseDuringCountdown)
+                {
+                    eventAggregator.Publish(this, new PauseSourceEvent(nameof(InvokeCountdown), false));
+                }
+                activeCountdownCancel = null;
+                return false;
+            }
+        }
+
+        private bool CanShowCountdownInterstitial(int adsIntervalSeconds, Action<bool> onClose, bool invokeOnClose)
+        {
+            if (!IsInterstitialAvailable)
+            {
+                Logger.CreateError(this, "Countdown interstitial not available");
+                if (invokeOnClose) {
+                    onClose?.Invoke(false);
+                }
+                return false;
+            }
+            if (IsInterstitialVisible || IsRewardedVisible)
+            {
+                Logger.CreateError(this, "Countdown skipped because ad is already visible");
+                if (invokeOnClose) {
+                    onClose?.Invoke(false);
+                }
+                return false;
+            }
+            if (IsInterstitialFrequencyCapped(adsIntervalSeconds, out string source, out double secondsLeft))
+            {
+                Logger.CreateError(this, $"Countdown interstitial frequency capped ({source})", secondsLeft, "seconds left");
+                if (invokeOnClose) {
+                    onClose?.Invoke(false);
+                }
+                return false;
+            }
+            return true;
+        }
+
+        private bool IsInterstitialFrequencyCapped(int adsIntervalSeconds, out string source, out double secondsLeft)
+        {
+            source = string.Empty;
+            secondsLeft = 0.0;
+            if (adsIntervalSeconds <= 0) {
+                return false;
+            }
+
+            if (lastInterstitialSuccess.HasValue)
+            {
+                double interstitialSeconds = (DateTime.Now - lastInterstitialSuccess.Value).TotalSeconds;
+                if (interstitialSeconds < adsIntervalSeconds)
+                {
+                    source = "interstitial";
+                    secondsLeft = adsIntervalSeconds - interstitialSeconds;
+                    return true;
+                }
+            }
+            if (lastRewardedSuccess.HasValue)
+            {
+                double rewardedSeconds = (DateTime.Now - lastRewardedSuccess.Value).TotalSeconds;
+                if (rewardedSeconds < adsIntervalSeconds)
+                {
+                    source = "rewarded";
+                    secondsLeft = adsIntervalSeconds - rewardedSeconds;
+                    return true;
+                }
+            }
+            return false;
         }
 
         // Rewarded
@@ -250,6 +618,9 @@ namespace PrimeGames.SDK.Common
             catch (Exception exception)
             {
                 Logger.CreateError(this, nameof(InvokeRewarded), exception);
+                parameters.OnClose?.Invoke(false);
+                PauseSourceEvent pauseSourceEvent = new(nameof(InvokeRewarded), false);
+                eventAggregator.Publish(this, pauseSourceEvent);
             }
         }
 

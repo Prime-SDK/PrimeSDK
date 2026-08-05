@@ -116,8 +116,36 @@ namespace PrimeGames.SDK.PrimeWeb {
             }
         }
 
-        public PrimeWebAds(PrimeWebAds_Configuration configuration, IEventAggregator eventAggregator) : base(eventAggregator) {
+        public PrimeWebAds(PrimeWebAds_Configuration configuration, IEventAggregator eventAggregator, ILanguageInfo languageInfo) : base(eventAggregator) {
             this.configuration = configuration;
+            ConfigureCountdownStartDelay(configuration.AutoAdsStartDelaySeconds);
+            ConfigureCountdownSettings(
+                configuration.CountdownSeconds,
+                () => AutoAdsCountdownView.GetAdvertisementTitle(languageInfo?.Current ?? LanguageType.English),
+                () => configuration.GetCountdownMessage(languageInfo?.Current ?? LanguageType.English),
+                configuration.PauseDuringCountdown,
+                ToAdsIntervalSeconds(configuration.AutoAdsIntervalSeconds),
+                configuration.AutoAdsStartDelaySeconds
+            );
+            if (configuration.AutoAdsEnabled) {
+                ConfigureCountdownBeforeInterstitial(
+                    configuration.CountdownSeconds,
+                    () => AutoAdsCountdownView.GetAdvertisementTitle(languageInfo?.Current ?? LanguageType.English),
+                    () => configuration.GetCountdownMessage(languageInfo?.Current ?? LanguageType.English),
+                    configuration.PauseDuringCountdown,
+                    ToAdsIntervalSeconds(configuration.AutoAdsIntervalSeconds)
+                );
+            }
+            if (configuration.AutoAdsEnabled) {
+                StartAutoCountDownAds(
+                    configuration.AutoAdsStartDelaySeconds,
+                    configuration.AutoAdsIntervalSeconds,
+                    configuration.CountdownSeconds,
+                    () => AutoAdsCountdownView.GetAdvertisementTitle(languageInfo?.Current ?? LanguageType.English),
+                    () => configuration.GetCountdownMessage(languageInfo?.Current ?? LanguageType.English),
+                    configuration.PauseDuringCountdown
+                );
+            }
             SetInitialized();
         }
 

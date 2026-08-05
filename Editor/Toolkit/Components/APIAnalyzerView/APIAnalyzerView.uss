@@ -1,0 +1,109 @@
+.api-analyzer-root {
+    flex-grow: 1;
+}
+
+.api-analyzer-content {
+    flex-grow: 1;
+    padding-left: 18px;
+    padding-right: 18px;
+    padding-top: 14px;
+    padding-bottom: 18px;
+}
+
+.api-analyzer-header {
+    flex-shrink: 0;
+    background-color: rgb(14, 15, 16);
+    border-top-width: 3px;
+    border-top-color: rgb(255, 125, 20);
+    padding-left: 16px;
+    padding-right: 16px;
+    padding-top: 12px;
+    padding-bottom: 14px;
+}
+
+.api-analyzer-title {
+    -unity-font-style: bold;
+    font-size: 22px;
+    color: rgb(255, 125, 20);
+}
+
+.api-analyzer-description {
+    white-space: normal;
+    margin-top: 4px;
+    color: rgb(199, 199, 199);
+}
+
+.api-analyzer-actions {
+    flex-direction: row;
+    margin-top: 14px;
+}
+
+.api-analyzer-scan-button {
+    margin-right: 6px;
+}
+
+.api-analyzer-status {
+    flex-shrink: 0;
+    white-space: normal;
+    margin-top: 10px;
+    color: rgb(209, 209, 209);
+}
+
+.api-analyzer-results {
+    flex-grow: 1;
+    margin-top: 12px;
+}
+
+.api-analyzer-results-list {
+    flex-grow: 1;
+    min-height: 320px;
+    height: 100%;
+}
+
+.api-analyzer-results-list .unity-list-view__item,
+.api-analyzer-results-list .unity-list-view__item:hover,
+.api-analyzer-results-list .unity-list-view__item:focus,
+.api-analyzer-results-list .unity-list-view__item:selected,
+.api-analyzer-results-list .unity-collection-view__item,
+.api-analyzer-results-list .unity-collection-view__item:hover,
+.api-analyzer-results-list .unity-collection-view__item:focus,
+.api-analyzer-results-list .unity-collection-view__item:selected,
+.api-analyzer-results-list .unity-collection-view__item--selected {
+    background-color: transparent;
+}
+
+.api-analyzer-result-row {
+    flex-direction: row;
+    align-items: center;
+    background-color: rgb(14, 15, 16);
+    margin-bottom: 6px;
+    padding-left: 12px;
+    padding-right: 12px;
+    padding-top: 10px;
+    padding-bottom: 10px;
+}
+
+.api-analyzer-result-text {
+    flex-grow: 1;
+}
+
+.api-analyzer-result-title {
+    -unity-font-style: bold;
+    font-size: 13px;
+    color: rgb(255, 255, 255);
+}
+
+.api-analyzer-result-title-convertible {
+    color: rgb(255, 199, 107);
+}
+
+.api-analyzer-result-path {
+    font-size: 12px;
+    color: rgb(189, 189, 189);
+}
+
+.api-analyzer-result-preview {
+    white-space: normal;
+    font-size: 12px;
+    color: rgb(224, 224, 224);
+}

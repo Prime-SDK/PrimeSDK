@@ -6,7 +6,7 @@ namespace PrimeGames.SDK {
     [Root, Preserve]
     public partial class PrimeSDK {
 
-        public const string Version = "5.2.3";
+        public const string Version = "5.2.6";
 
         private PrimeSDK(MainFactory factory) {
             Logger.CreateText(this, $"Starting up. Version {Version}");
@@ -16,6 +16,7 @@ namespace PrimeGames.SDK {
 
             preferences = factory.CreatePreferencesReader();
             data = factory.CreateData();
+            language = factory.CreateLanguage();
 
             achievements = factory.CreateAchievements();
             ads = factory.CreateAds();
@@ -25,7 +26,6 @@ namespace PrimeGames.SDK {
             bootstrap = factory.CreateBootstrap();
             device = factory.CreateDevice();
             flags = factory.CreateFlags();
-            language = factory.CreateLanguage();
             pause = factory.CreatePause();
             payments = factory.CreatePayments();
             platform = factory.CreatePlatform();

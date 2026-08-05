@@ -1,0 +1,9 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" noNamespaceSchemaLocation="../../../UIElementsSchema/UIElements.xsd">
+    <Style src="AutoAdsCountdownView.uss" />
+    <ui:VisualElement name="Overlay" picking-mode="Position" class="auto-ads-countdown-overlay">
+        <ui:VisualElement name="Panel" picking-mode="Ignore" class="auto-ads-countdown-panel">
+            <ui:Label name="TitleLabel" text="Ad starts soon" picking-mode="Ignore" class="auto-ads-countdown-title" />
+            <ui:Label name="CountdownLabel" text="3" picking-mode="Ignore" class="auto-ads-countdown-value" />
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>

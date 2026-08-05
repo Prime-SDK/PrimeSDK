@@ -1,6 +1,26 @@
 {
   "Releases": [
     {
+      "Version": "5.2.6",
+      "Title": "PrimeSDK update",
+      "Ru": [
+        "Добавлена реклама по таймеру.",
+        "Исправлена некорректная загрузка пакета на Android.",
+        "Добавлена возможность выбора целевого устройства под билд.",
+        "Добавлен анализатор остаточных сторонних SDK.",
+        "Добавлен API анализатор для конвертации Unity API на PrimeSDK API.",
+        "Исправлен анализ Build Optimizer для целевой платформы."
+      ],
+      "En": [
+        "Added timer-based ads.",
+        "Fixed incorrect package loading on Android.",
+        "Added target device selection for builds.",
+        "Added an analyzer for leftover third-party SDKs.",
+        "Added an API analyzer for converting Unity APIs to PrimeSDK APIs.",
+        "Fixed Build Optimizer analysis for the selected target platform."
+      ]
+    },
+    {
       "Version": "5.2.3",
       "Title": "PrimeSDK update",
       "Ru": [

@@ -1,0 +1,15 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="True">
+    <Style src="APIAnalyzerView.uss" />
+    <ui:VisualElement name="Content" class="api-analyzer-content">
+        <ui:VisualElement name="Header" class="api-analyzer-header">
+            <ui:Label text="API Analyzer" class="api-analyzer-title" />
+            <ui:Label text="Find Unity APIs, ad calls and IAP calls that should be reviewed before moving to PrimeSDK APIs." class="api-analyzer-description" />
+            <ui:VisualElement class="api-analyzer-actions">
+                <ui:Button text="Scan" name="Scan" class="api-analyzer-scan-button" />
+                <ui:Button text="Convert" name="Convert" />
+            </ui:VisualElement>
+        </ui:VisualElement>
+        <ui:Label name="Status" text="Run scan to find API usages." class="api-analyzer-status" />
+        <ui:VisualElement name="Results" class="api-analyzer-results" />
+    </ui:VisualElement>
+</ui:UXML>

@@ -1,0 +1,11 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="True">
+    <Style src="APIAnalyzerView.uss" />
+    <ui:VisualElement name="Row" class="api-analyzer-result-row">
+        <ui:VisualElement name="TextColumn" class="api-analyzer-result-text">
+            <ui:Label name="Title" class="api-analyzer-result-title" />
+            <ui:Label name="Path" class="api-analyzer-result-path" />
+            <ui:Label name="Preview" class="api-analyzer-result-preview" />
+        </ui:VisualElement>
+        <ui:Button name="SelectButton" />
+    </ui:VisualElement>
+</ui:UXML>

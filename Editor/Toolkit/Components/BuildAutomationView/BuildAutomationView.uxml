@@ -4,6 +4,7 @@
         <ui:VisualElement style="flex-shrink: 0; flex-grow: 1; margin-top: 10px;">
             <ui:VisualElement name="UnityGroup">
                 <ui:Label text="Unity" display-tooltip-when-elided="true" style="-unity-font-style: bold; margin-top: 0; margin-left: 10px;" />
+                <ui:DropdownField label="Target Pipeline" index="0" name="TargetPipeline" style="margin-top: 5px; margin-left: 10px; margin-right: 10px; margin-bottom: 0;" />
                 <ui:VisualElement style="flex-direction: row; margin-top: 5px; margin-left: 10px;">
                     <ui:Button text="Open Build Settings" display-tooltip-when-elided="true" name="OpenBuildSettings" style="margin-top: 0; margin-right: 0; margin-bottom: 0; margin-left: 0;" />
                     <ui:Button text="Open Player Settings" display-tooltip-when-elided="true" name="OpenPlayerSettings" style="margin-top: 0; margin-right: 0; margin-bottom: 0; margin-left: 5px;" />
@@ -34,6 +35,26 @@
                 <ui:TextField picking-mode="Ignore" label="Build File Name" name="BuildFileName" style="margin-top: 5px; margin-left: 10px; margin-right: 10px; margin-bottom: 0;" />
                 <ui:VisualElement style="flex-direction: row; margin-top: 5px; margin-right: 10px; margin-left: 10px; justify-content: flex-end;">
                     <ui:Button text="Reset File Name" display-tooltip-when-elided="true" name="ResetFileName" style="margin-top: 0; margin-right: 0; margin-bottom: 0; margin-left: 5px;" />
+                </ui:VisualElement>
+                <ui:VisualElement name="separator" style="height: 1px; background-color: rgb(35, 35, 35); margin-top: 10px; margin-right: 0; margin-bottom: 10px;" />
+            </ui:VisualElement>
+            <ui:VisualElement name="AndroidOutputGroup">
+                <ui:Label text="Android Output" display-tooltip-when-elided="true" style="-unity-font-style: bold; margin-top: 0; margin-right: 0; margin-bottom: 0; margin-left: 10px;" />
+                <ui:DropdownField label="Build Format" index="0" name="AndroidBuildFormat" style="margin-top: 5px; margin-left: 10px; margin-right: 10px; margin-bottom: 0;" />
+                <ui:Toggle label="Development Build" name="AndroidDevelopmentBuild" style="margin-top: 5px; margin-right: 10px; margin-bottom: 0; margin-left: 10px;" />
+                <ui:Toggle label="Script Debugging" name="AndroidScriptDebugging" style="margin-top: 5px; margin-right: 10px; margin-bottom: 0; margin-left: 10px;" />
+                <ui:Toggle label="Clean Output Before Build" name="AndroidCleanOutputBeforeBuild" style="margin-top: 5px; margin-right: 10px; margin-bottom: 0; margin-left: 10px;" />
+                <ui:VisualElement style="flex-direction: row; margin-top: 5px; margin-right: 10px; margin-left: 10px; justify-content: flex-end;">
+                    <ui:Button text="Open Builds Folder" display-tooltip-when-elided="true" name="AndroidOpenBuildsFolder" style="margin-top: 0; margin-right: 0; margin-bottom: 0; margin-left: 5px;" />
+                </ui:VisualElement>
+                <ui:TextField picking-mode="Ignore" label="Android Output Folder" name="AndroidBuildsFolderPath" style="margin-top: 5px; margin-left: 10px; margin-right: 10px; margin-bottom: 0;" />
+                <ui:VisualElement style="flex-direction: row; margin-top: 5px; margin-right: 10px; margin-left: 10px; justify-content: flex-end;">
+                    <ui:Button text="Reset Output Folder" display-tooltip-when-elided="true" name="AndroidResetBuildsFolder" style="margin-top: 0; margin-right: 0; margin-bottom: 0; margin-left: 5px;" />
+                    <ui:Button text="Select Output Folder" display-tooltip-when-elided="true" name="AndroidSelectBuildsFolder" style="margin-top: 0; margin-right: 0; margin-bottom: 0; margin-left: 5px;" />
+                </ui:VisualElement>
+                <ui:TextField picking-mode="Ignore" label="Build File Name" name="AndroidBuildFileName" style="margin-top: 5px; margin-left: 10px; margin-right: 10px; margin-bottom: 0;" />
+                <ui:VisualElement style="flex-direction: row; margin-top: 5px; margin-right: 10px; margin-left: 10px; justify-content: flex-end;">
+                    <ui:Button text="Reset File Name" display-tooltip-when-elided="true" name="AndroidResetFileName" style="margin-top: 0; margin-right: 0; margin-bottom: 0; margin-left: 5px;" />
                 </ui:VisualElement>
                 <ui:VisualElement name="separator" style="height: 1px; background-color: rgb(35, 35, 35); margin-top: 10px; margin-right: 0; margin-bottom: 10px;" />
             </ui:VisualElement>

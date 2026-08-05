@@ -1,0 +1,11 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="True">
+    <Style src="SDKAnalyzerView.uss" />
+    <ui:VisualElement name="Row" class="sdk-analyzer-result-row">
+        <ui:VisualElement name="TextColumn" class="sdk-analyzer-result-text">
+            <ui:Label name="Title" class="sdk-analyzer-result-title" />
+            <ui:Label name="Path" class="sdk-analyzer-result-path" />
+            <ui:Label name="Evidence" class="sdk-analyzer-result-evidence" />
+        </ui:VisualElement>
+        <ui:Button text="Select Matched" name="SelectButton" />
+    </ui:VisualElement>
+</ui:UXML>

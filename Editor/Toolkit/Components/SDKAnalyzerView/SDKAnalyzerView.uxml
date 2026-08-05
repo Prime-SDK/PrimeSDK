@@ -1,0 +1,16 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="True">
+    <Style src="SDKAnalyzerView.uss" />
+    <ui:ScrollView vertical-scroller-visibility="AlwaysVisible" class="sdk-analyzer-scroll">
+        <ui:VisualElement name="Content" class="sdk-analyzer-content">
+            <ui:VisualElement name="Header" class="sdk-analyzer-header">
+                <ui:Label text="SDK Analyzer" class="sdk-analyzer-title" />
+                <ui:Label text="Scan Assets for SDKs and native plugins that are usually unnecessary for WebGL builds." class="sdk-analyzer-description" />
+                <ui:VisualElement class="sdk-analyzer-actions">
+                    <ui:Button text="Scan" name="Scan" />
+                </ui:VisualElement>
+            </ui:VisualElement>
+            <ui:Label name="Status" text="Run scan to find SDK/plugin candidates under Assets." class="sdk-analyzer-status" />
+            <ui:VisualElement name="Results" class="sdk-analyzer-results" />
+        </ui:VisualElement>
+    </ui:ScrollView>
+</ui:UXML>

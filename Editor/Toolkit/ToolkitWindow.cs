@@ -137,7 +137,9 @@ namespace PrimeGames.SDK.Editor
         {
             Configurations,
             PackageManager,
-            BuildOptimizer
+            BuildOptimizer,
+            SDKAnalyzer,
+            APIAnalyzer
         }
 
         private const float NavigationPaddingLeft = 15.0f;
@@ -183,6 +185,14 @@ namespace PrimeGames.SDK.Editor
             {
                 return EditorGUIUtility.IconContent("d_PreMatCube").image as Texture2D;
             }
+            if (navigationItemName == nameof(NavigationItem.SDKAnalyzer))
+            {
+                return EditorGUIUtility.IconContent("d_Search Icon").image as Texture2D;
+            }
+            if (navigationItemName == nameof(NavigationItem.APIAnalyzer))
+            {
+                return EditorGUIUtility.IconContent("d_cs Script Icon").image as Texture2D;
+            }
 
             string iconName = navigationItemName switch
             {
@@ -222,6 +232,16 @@ namespace PrimeGames.SDK.Editor
                 case NavigationItem.BuildOptimizer:
                 {
                     ShowBuildOptimizer();
+                    break;
+                }
+                case NavigationItem.SDKAnalyzer:
+                {
+                    ShowSDKAnalyzer();
+                    break;
+                }
+                case NavigationItem.APIAnalyzer:
+                {
+                    ShowAPIAnalyzer();
                     break;
                 }
             }
@@ -301,6 +321,9 @@ namespace PrimeGames.SDK.Editor
 
         private BuildOptimizerView buildOptimizerView;
         private BuildAutomationView buildOptimizerSettingsView;
+        private SDKAnalyzerView sdkAnalyzerView;
+        private SDKAnalyzerInspector sdkAnalyzerInspector;
+        private APIAnalyzerView apiAnalyzerView;
 
         private void ShowBuildOptimizer()
         {
@@ -308,6 +331,20 @@ namespace PrimeGames.SDK.Editor
             buildOptimizerSettingsView ??= new BuildAutomationView(showBuildActions: false);
             toolkitViewport.Add(buildOptimizerView);
             toolkitInspector.Add(buildOptimizerSettingsView);
+        }
+
+        private void ShowSDKAnalyzer()
+        {
+            sdkAnalyzerInspector ??= new SDKAnalyzerInspector();
+            sdkAnalyzerView ??= new SDKAnalyzerView(sdkAnalyzerInspector);
+            toolkitViewport.Add(sdkAnalyzerView);
+            toolkitInspector.Add(sdkAnalyzerInspector);
+        }
+
+        private void ShowAPIAnalyzer()
+        {
+            apiAnalyzerView ??= new APIAnalyzerView();
+            toolkitViewport.Add(apiAnalyzerView);
         }
 
         #endregion

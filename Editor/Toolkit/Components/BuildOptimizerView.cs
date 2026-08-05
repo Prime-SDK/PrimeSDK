@@ -85,7 +85,7 @@ namespace PrimeGames.SDK.Editor {
             header.style.borderTopWidth = 3;
             content.Add(header);
 
-            Label title = CreateLabel("WebGL Build Optimizer", 22, FontStyle.Bold, Accent);
+            Label title = CreateLabel("Build Optimizer", 22, FontStyle.Bold, Accent);
             title.style.marginTop = 12;
             title.style.marginLeft = 16;
             header.Add(title);
@@ -138,9 +138,10 @@ namespace PrimeGames.SDK.Editor {
 
         private void AnalyzeOnly() {
             try {
-                currentAnalysis = BuildAssetAnalyzer.AnalyzeEnabledBuildScenes();
+                BuildTarget target = GetSelectedBuildTarget();
+                currentAnalysis = BuildAssetAnalyzer.AnalyzeEnabledBuildScenes(target);
                 lastBuildSizeBytes = 0;
-                statusLabel.text = currentAnalysis.StatusMessage;
+                statusLabel.text = $"{currentAnalysis.StatusMessage} | Target: {target}";
                 RebuildPlan();
                 RenderAnalysis();
                 RenderWizard();
@@ -153,12 +154,65 @@ namespace PrimeGames.SDK.Editor {
 
         private void BuildAndAnalyze() {
             try {
-                string buildPath = GetBuildFilePath();
-                EditorUserBuildSettings.SetBuildLocation(BuildTarget.WebGL, buildPath);
+                BuildTarget target = GetSelectedBuildTarget();
+                switch (target) {
+                    case BuildTarget.WebGL:
+                        BuildAndAnalyzeWebGL();
+                        break;
+                    case BuildTarget.Android:
+                        BuildAndAnalyzeAndroid();
+                        break;
+                    default:
+                        throw new InvalidOperationException($"Build Optimizer supports WebGL and Android pipelines. Current target: {target}");
+                }
+            }
+            catch (Exception exception) {
+                statusLabel.text = exception.Message;
+                Logger.CreateError(nameof(BuildOptimizerView), "Build and analysis failed", exception.Message);
+            }
+        }
+
+        private void BuildAndAnalyzeWebGL() {
+            string buildPath = GetBuildFilePath();
+            EditorUserBuildSettings.SetBuildLocation(BuildTarget.WebGL, buildPath);
+
+            BuildPlayerOptions options = GetBuildPlayerOptions();
+            options.locationPathName = buildPath;
+            options.target = BuildTarget.WebGL;
+
+            BuildReport report = BuildPipeline.BuildPlayer(options);
+            if (report.summary.result != BuildResult.Succeeded) {
+                statusLabel.text = $"Build failed: {report.summary.result}";
+                return;
+            }
+
+            CleanBuildOutputArtifacts(buildPath);
+            string outputPath = ApplyBuildExportFormat(buildPath);
+            RenderBuildAnalysis(outputPath, BuildTarget.WebGL);
+            EditorUtility.RevealInFinder(outputPath);
+        }
+
+        private void BuildAndAnalyzeAndroid() {
+            string outputPath = BuildAutomationView.GetAndroidBuildFilePath();
+            Directory.CreateDirectory(Path.GetDirectoryName(outputPath));
+            if (BuildAutomationView.GetAndroidCleanOutputBeforeBuild() && File.Exists(outputPath)) {
+                File.Delete(outputPath);
+            }
+
+            bool previousBuildAppBundle = EditorUserBuildSettings.buildAppBundle;
+            try {
+                EditorUserBuildSettings.buildAppBundle = BuildAutomationView.GetAndroidBuildFormat() == AndroidBuildFormat.AAB;
+                EditorUserBuildSettings.SetBuildLocation(BuildTarget.Android, outputPath);
 
                 BuildPlayerOptions options = GetBuildPlayerOptions();
-                options.locationPathName = buildPath;
-                options.target = BuildTarget.WebGL;
+                options.locationPathName = outputPath;
+                options.target = BuildTarget.Android;
+                if (BuildAutomationView.GetAndroidDevelopmentBuild() || BuildAutomationView.GetAndroidScriptDebugging()) {
+                    options.options |= BuildOptions.Development;
+                }
+                if (BuildAutomationView.GetAndroidScriptDebugging()) {
+                    options.options |= BuildOptions.AllowDebugging;
+                }
 
                 BuildReport report = BuildPipeline.BuildPlayer(options);
                 if (report.summary.result != BuildResult.Succeeded) {
@@ -166,20 +220,21 @@ namespace PrimeGames.SDK.Editor {
                     return;
                 }
 
-                CleanBuildOutputArtifacts(buildPath);
-                string outputPath = ApplyBuildExportFormat(buildPath);
-                currentAnalysis = BuildAssetAnalyzer.AnalyzeEnabledBuildScenes();
-                lastBuildSizeBytes = GetOutputSizeBytes(outputPath);
-                statusLabel.text = $"{currentAnalysis.StatusMessage} | Build: {BuildAssetAnalyzer.FormatBytes(lastBuildSizeBytes)}";
-                RebuildPlan();
-                RenderAnalysis();
-                RenderWizard();
+                RenderBuildAnalysis(outputPath, BuildTarget.Android);
                 EditorUtility.RevealInFinder(outputPath);
             }
-            catch (Exception exception) {
-                statusLabel.text = exception.Message;
-                Logger.CreateError(nameof(BuildOptimizerView), "Build and analysis failed", exception.Message);
+            finally {
+                EditorUserBuildSettings.buildAppBundle = previousBuildAppBundle;
             }
+        }
+
+        private void RenderBuildAnalysis(string outputPath, BuildTarget target) {
+            currentAnalysis = BuildAssetAnalyzer.AnalyzeEnabledBuildScenes(target);
+            lastBuildSizeBytes = GetOutputSizeBytes(outputPath);
+            statusLabel.text = $"{currentAnalysis.StatusMessage} | Target: {target} | Build: {BuildAssetAnalyzer.FormatBytes(lastBuildSizeBytes)}";
+            RebuildPlan();
+            RenderAnalysis();
+            RenderWizard();
         }
 
         private void ApplySelectedOptimization() {
@@ -201,7 +256,7 @@ namespace PrimeGames.SDK.Editor {
             try {
                 BuildAssetOptimizationResult result = BuildAssetAnalyzer.ApplyOptimization(currentPlan, profile);
                 statusLabel.text = result.StatusMessage;
-                currentAnalysis = BuildAssetAnalyzer.AnalyzeEnabledBuildScenes();
+                currentAnalysis = BuildAssetAnalyzer.AnalyzeEnabledBuildScenes(GetSelectedBuildTarget());
                 RebuildPlan();
                 RenderAnalysis();
                 RenderWizard();
@@ -244,7 +299,7 @@ namespace PrimeGames.SDK.Editor {
             summaryCards.Clear();
             summaryCards.Add(CreateSummaryCard("Build Size", lastBuildSizeBytes > 0 ? BuildAssetAnalyzer.FormatBytes(lastBuildSizeBytes) : "Not built", lastBuildSizeBytes > 0 ? "Export output" : "Analysis only"));
             summaryCards.Add(CreateSummaryCard("Tracked Assets", currentAnalysis.Assets.Count.ToString(), "Build scene dependencies"));
-            summaryCards.Add(CreateSummaryCard("Estimated Assets", BuildAssetAnalyzer.FormatBytes(currentAnalysis.TotalSizeBytes), "Source file sizes"));
+            summaryCards.Add(CreateSummaryCard("Estimated Assets", BuildAssetAnalyzer.FormatBytes(currentAnalysis.TotalSizeBytes), "Target importer estimate"));
 
             Dictionary<BuildAssetCategory, List<BuildAssetInfo>> byCategory = currentAnalysis.Assets
                 .GroupBy(asset => asset.Category)
@@ -910,6 +965,10 @@ namespace PrimeGames.SDK.Editor {
         private static BuildExportFormat GetCurrentBuildExportFormat() {
             string valueName = PackageTools.GetPrefsString(CurrentBuildExportFormatKey);
             return valueName.ToEnumOrDefault<BuildExportFormat>();
+        }
+
+        private static BuildTarget GetSelectedBuildTarget() {
+            return BuildAutomationView.ResolvePipelineTarget(BuildAutomationView.GetCurrentPipeline());
         }
 
         private static string ApplyBuildExportFormat(string buildFolderPath) {

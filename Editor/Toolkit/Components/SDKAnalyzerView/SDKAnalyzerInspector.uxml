@@ -1,0 +1,13 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="True">
+    <Style src="SDKAnalyzerView.uss" />
+    <ui:VisualElement name="Content" class="sdk-analyzer-inspector">
+        <ui:Label name="Title" text="No SDK selected" class="sdk-analyzer-inspector-title" />
+        <ui:Label name="Reason" text="Select an item from the analyzer list to see why it was highlighted." class="sdk-analyzer-inspector-reason" />
+        <ui:Label name="Folder" class="sdk-analyzer-inspector-detail sdk-analyzer-inspector-folder" />
+        <ui:Label name="Matched" class="sdk-analyzer-inspector-detail" />
+        <ui:Label name="Keyword" class="sdk-analyzer-inspector-detail" />
+        <ui:Label name="CodeLineTitle" class="sdk-analyzer-inspector-code-title" />
+        <ui:Label name="CodeLine" class="sdk-analyzer-inspector-code-line" />
+        <ui:Button text="Select Matched File" name="SelectButton" class="sdk-analyzer-inspector-select" />
+    </ui:VisualElement>
+</ui:UXML>

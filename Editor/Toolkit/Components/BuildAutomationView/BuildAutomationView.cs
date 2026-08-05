@@ -32,6 +32,7 @@ namespace PrimeGames.SDK.Editor {
         }
 
         private VisualElement UnityGroup => this.Q<VisualElement>("UnityGroup");
+        private DropdownField TargetPipeline => this.Q<DropdownField>("TargetPipeline");
         private Button OpenBuildSettings => this.Q<Button>("OpenBuildSettings");
         private Button OpenPlayerSettings => this.Q<Button>("OpenPlayerSettings");
 
@@ -51,6 +52,18 @@ namespace PrimeGames.SDK.Editor {
         private TextField BuildFileName => this.Q<TextField>("BuildFileName");
         private Button ResetFileName => this.Q<Button>("ResetFileName");
 
+        private VisualElement AndroidOutputGroup => this.Q<VisualElement>("AndroidOutputGroup");
+        private DropdownField AndroidBuildFormatField => this.Q<DropdownField>("AndroidBuildFormat");
+        private Toggle AndroidDevelopmentBuild => this.Q<Toggle>("AndroidDevelopmentBuild");
+        private Toggle AndroidScriptDebugging => this.Q<Toggle>("AndroidScriptDebugging");
+        private Toggle AndroidCleanOutputBeforeBuild => this.Q<Toggle>("AndroidCleanOutputBeforeBuild");
+        private Button AndroidOpenBuildsFolder => this.Q<Button>("AndroidOpenBuildsFolder");
+        private TextField AndroidBuildsFolderPath => this.Q<TextField>("AndroidBuildsFolderPath");
+        private Button AndroidResetBuildsFolder => this.Q<Button>("AndroidResetBuildsFolder");
+        private Button AndroidSelectBuildsFolder => this.Q<Button>("AndroidSelectBuildsFolder");
+        private TextField AndroidBuildFileName => this.Q<TextField>("AndroidBuildFileName");
+        private Button AndroidResetFileName => this.Q<Button>("AndroidResetFileName");
+
         private BuildExportFormat CurrentBuildExportFormat {
             get {
                 string valueName = PackageTools.GetPrefsString(nameof(CurrentBuildExportFormat));
@@ -62,6 +75,14 @@ namespace PrimeGames.SDK.Editor {
             get {
                 return Path.Combine(PackageTools.ProjectPath, Naming.Builds).NormalizePath();
             }
+        }
+
+        private BuildOptimizerPipeline CurrentTargetPipeline {
+            get {
+                string valueName = PackageTools.GetPrefsString(nameof(CurrentTargetPipeline), BuildOptimizerPipeline.CurrentActiveTarget.ToString());
+                return valueName.ToEnumOrDefault<BuildOptimizerPipeline>();
+            }
+            set => PackageTools.SetPrefsString(nameof(CurrentTargetPipeline), value.ToString());
         }
 
         private string CurrentBuildsFolderPath {
@@ -88,6 +109,55 @@ namespace PrimeGames.SDK.Editor {
                 return PackageTools.GetPrefsString(nameof(CurrentBuildFileName), DefaultBuildFileName);
             }
             set => PackageTools.SetPrefsString(nameof(CurrentBuildFileName), value);
+        }
+
+        private string DefaultAndroidBuildsFolderPath {
+            get {
+                return Path.Combine(PackageTools.ProjectPath, Naming.Builds).NormalizePath();
+            }
+        }
+
+        private string CurrentAndroidBuildsFolderPath {
+            get {
+                return PackageTools.GetPrefsString(nameof(CurrentAndroidBuildsFolderPath), DefaultAndroidBuildsFolderPath);
+            }
+            set => PackageTools.SetPrefsString(nameof(CurrentAndroidBuildsFolderPath), value);
+        }
+
+        private string DefaultAndroidBuildFileName {
+            get {
+                return $"{DefaultProjectName}[#NUMBER]-primeSDK[#VERSION]";
+            }
+        }
+
+        private string CurrentAndroidBuildFileName {
+            get {
+                return PackageTools.GetPrefsString(nameof(CurrentAndroidBuildFileName), DefaultAndroidBuildFileName);
+            }
+            set => PackageTools.SetPrefsString(nameof(CurrentAndroidBuildFileName), value);
+        }
+
+        private AndroidBuildFormat CurrentAndroidBuildFormat {
+            get {
+                string valueName = PackageTools.GetPrefsString(nameof(CurrentAndroidBuildFormat), AndroidBuildFormat.APK.ToString());
+                return valueName.ToEnumOrDefault<AndroidBuildFormat>();
+            }
+            set => PackageTools.SetPrefsString(nameof(CurrentAndroidBuildFormat), value.ToString());
+        }
+
+        private bool CurrentAndroidDevelopmentBuild {
+            get => PackageTools.GetPrefsBool(nameof(CurrentAndroidDevelopmentBuild), false);
+            set => PackageTools.SetPrefsBool(nameof(CurrentAndroidDevelopmentBuild), value);
+        }
+
+        private bool CurrentAndroidScriptDebugging {
+            get => PackageTools.GetPrefsBool(nameof(CurrentAndroidScriptDebugging), false);
+            set => PackageTools.SetPrefsBool(nameof(CurrentAndroidScriptDebugging), value);
+        }
+
+        private bool CurrentAndroidCleanOutputBeforeBuild {
+            get => PackageTools.GetPrefsBool(nameof(CurrentAndroidCleanOutputBeforeBuild), true);
+            set => PackageTools.SetPrefsBool(nameof(CurrentAndroidCleanOutputBeforeBuild), value);
         }
 
         private VisualElement ConfigurationGroup => this.Q<VisualElement>("ConfigurationGroup");
@@ -127,6 +197,16 @@ namespace PrimeGames.SDK.Editor {
             OpenPlayerSettings.clicked += () => {
                 SettingsService.OpenProjectSettings("Project/Player");
             };
+            Array targetPipelineChoices = Enum.GetValues(typeof(BuildOptimizerPipeline));
+            TargetPipeline.choices = targetPipelineChoices.Cast<BuildOptimizerPipeline>().Select(v => v.ToString()).ToList();
+            TargetPipeline.value = CurrentTargetPipeline.ToString();
+            TargetPipeline.RegisterValueChangedCallback(evt => {
+                if (evt.newValue == evt.previousValue) return;
+                if (Enum.TryParse(evt.newValue, out BuildOptimizerPipeline result)) {
+                    CurrentTargetPipeline = result;
+                    RefreshPipelineVisibility();
+                }
+            });
 
             // WebGL Settings
             Array enableExceptionsChoices = Enum.GetValues(typeof(WebGLExceptionSupport));
@@ -211,6 +291,67 @@ namespace PrimeGames.SDK.Editor {
                 BuildFileName.value = DefaultBuildFileName;
             };
 
+            // Android Output
+            Array androidBuildFormatChoices = Enum.GetValues(typeof(AndroidBuildFormat));
+            AndroidBuildFormatField.choices = androidBuildFormatChoices.Cast<AndroidBuildFormat>().Select(v => v.ToString()).ToList();
+            AndroidBuildFormatField.value = CurrentAndroidBuildFormat.ToString();
+            AndroidBuildFormatField.RegisterValueChangedCallback(evt => {
+                if (evt.newValue == evt.previousValue) return;
+                if (Enum.TryParse(evt.newValue, out AndroidBuildFormat result)) {
+                    CurrentAndroidBuildFormat = result;
+                }
+            });
+            AndroidDevelopmentBuild.value = CurrentAndroidDevelopmentBuild;
+            AndroidDevelopmentBuild.RegisterValueChangedCallback(evt => {
+                if (evt.newValue == evt.previousValue) return;
+                CurrentAndroidDevelopmentBuild = evt.newValue;
+                SyncToggleVisual(AndroidDevelopmentBuild);
+            });
+            AndroidScriptDebugging.value = CurrentAndroidScriptDebugging;
+            AndroidScriptDebugging.RegisterValueChangedCallback(evt => {
+                if (evt.newValue == evt.previousValue) return;
+                CurrentAndroidScriptDebugging = evt.newValue;
+                SyncToggleVisual(AndroidScriptDebugging);
+            });
+            AndroidCleanOutputBeforeBuild.value = CurrentAndroidCleanOutputBeforeBuild;
+            AndroidCleanOutputBeforeBuild.RegisterValueChangedCallback(evt => {
+                if (evt.newValue == evt.previousValue) return;
+                CurrentAndroidCleanOutputBeforeBuild = evt.newValue;
+                SyncToggleVisual(AndroidCleanOutputBeforeBuild);
+            });
+            AndroidBuildsFolderPath.value = CurrentAndroidBuildsFolderPath;
+            AndroidBuildsFolderPath.RegisterValueChangedCallback(evt => {
+                if (evt.newValue == evt.previousValue) return;
+                CurrentAndroidBuildsFolderPath = evt.newValue;
+            });
+            AndroidResetBuildsFolder.clicked += () => {
+                CurrentAndroidBuildsFolderPath = DefaultAndroidBuildsFolderPath;
+                AndroidBuildsFolderPath.value = DefaultAndroidBuildsFolderPath;
+            };
+            AndroidSelectBuildsFolder.clicked += () => {
+                string selectedPath = EditorUtility.OpenFolderPanel("Select Android Output Folder", CurrentAndroidBuildsFolderPath, "");
+                if (!string.IsNullOrEmpty(selectedPath)) {
+                    CurrentAndroidBuildsFolderPath = selectedPath.NormalizePath();
+                    AndroidBuildsFolderPath.value = CurrentAndroidBuildsFolderPath;
+                }
+            };
+            AndroidBuildFileName.value = CurrentAndroidBuildFileName;
+            AndroidBuildFileName.RegisterValueChangedCallback(evt => {
+                if (evt.newValue == evt.previousValue) return;
+                CurrentAndroidBuildFileName = evt.newValue;
+            });
+            AndroidResetFileName.clicked += () => {
+                CurrentAndroidBuildFileName = DefaultAndroidBuildFileName;
+                AndroidBuildFileName.value = DefaultAndroidBuildFileName;
+            };
+            AndroidOpenBuildsFolder.clicked += () => {
+                string buildsFolderPath = CurrentAndroidBuildsFolderPath;
+                if (!Directory.Exists(buildsFolderPath)) {
+                    Directory.CreateDirectory(buildsFolderPath);
+                }
+                EditorUtility.RevealInFinder(buildsFolderPath + Path.AltDirectorySeparatorChar);
+            };
+
             // Configuration
             Array configurationChoices = Enum.GetValues(typeof(ConfigurationType));
             BuildConfiguration.choices = configurationChoices.Cast<ConfigurationType>().Select(v => v.ToString()).ToList();
@@ -223,6 +364,7 @@ namespace PrimeGames.SDK.Editor {
                 if (Enum.TryParse<ConfigurationType>(evt.newValue, out ConfigurationType result)) {
                     BuildConfigurationType = result;
                     ToolkitWindow.OnConfigurationChanged?.Invoke();
+                    RefreshPipelineVisibility();
                 }
             });
 
@@ -259,28 +401,31 @@ namespace PrimeGames.SDK.Editor {
                 EditorUtility.RevealInFinder(buildsFolderPath + Path.AltDirectorySeparatorChar);
             };
 
-            BuildTarget buildTarget = EditorUserBuildSettings.activeBuildTarget;
-            switch (buildTarget) {
-                case BuildTarget.WebGL: {
-                    UnityGroup.style.display = DisplayStyle.Flex;
-                    WebGLSettingsGroup.style.display = DisplayStyle.Flex;
-                    WebGLOutputGroup.style.display = DisplayStyle.Flex;
-                    ConfigurationGroup.style.display = DisplayStyle.Flex;
-                    WebGLActionsGroup.style.display = showBuildActions ? DisplayStyle.Flex : DisplayStyle.None;
-                    break;
-                }
-                default: {
-                    UnityGroup.style.display = DisplayStyle.Flex;
-                    WebGLSettingsGroup.style.display = DisplayStyle.None;
-                    WebGLOutputGroup.style.display = DisplayStyle.None;
-                    ConfigurationGroup.style.display = DisplayStyle.Flex;
-                    WebGLActionsGroup.style.display = DisplayStyle.None;
-                    break;
-                }
-            }
-
             UpdateValues();
             SyncWebGLToggleVisuals();
+            SyncAndroidToggleVisuals();
+            RefreshPipelineVisibility();
+        }
+
+        private void RefreshPipelineVisibility() {
+            BuildTarget target = ResolvePipelineTarget(CurrentTargetPipeline);
+            bool isWebGL = target == BuildTarget.WebGL;
+            bool isAndroid = target == BuildTarget.Android;
+
+            UnityGroup.style.display = DisplayStyle.Flex;
+            WebGLSettingsGroup.style.display = isWebGL ? DisplayStyle.Flex : DisplayStyle.None;
+            WebGLOutputGroup.style.display = isWebGL ? DisplayStyle.Flex : DisplayStyle.None;
+            AndroidOutputGroup.style.display = isAndroid ? DisplayStyle.Flex : DisplayStyle.None;
+            ConfigurationGroup.style.display = DisplayStyle.Flex;
+            WebGLActionsGroup.style.display = showBuildActions && isWebGL ? DisplayStyle.Flex : DisplayStyle.None;
+        }
+
+        internal static BuildTarget ResolvePipelineTarget(BuildOptimizerPipeline pipeline) {
+            return pipeline switch {
+                BuildOptimizerPipeline.WebGL => BuildTarget.WebGL,
+                BuildOptimizerPipeline.Android => BuildTarget.Android,
+                _ => EditorUserBuildSettings.activeBuildTarget
+            };
         }
 
         private string GetBuildFilePath() {
@@ -298,6 +443,47 @@ namespace PrimeGames.SDK.Editor {
                 buildDirectory.Create();
             }
             return buildDirectory.FullName;
+        }
+
+        internal static string GetAndroidBuildFilePath() {
+            string defaultBuildsFolder = Path.Combine(PackageTools.ProjectPath, Naming.Builds).NormalizePath();
+            string buildsFolder = PackageTools.GetPrefsString(nameof(CurrentAndroidBuildsFolderPath), defaultBuildsFolder);
+            Directory.CreateDirectory(buildsFolder);
+
+            string defaultProjectName = PlayerSettings.productName.ToSafeFileName("build");
+            string defaultFileName = $"{defaultProjectName}[#NUMBER]-primeSDK[#VERSION]";
+            string fileName = PackageTools.GetPrefsString(nameof(CurrentAndroidBuildFileName), defaultFileName);
+            int versionHandle = new DirectoryInfo(buildsFolder).GetFileSystemInfos().Count() + 1;
+            fileName = fileName.Replace("#NUMBER", versionHandle.ToString());
+            fileName = fileName.Replace("#VERSION", PrimeSDK.Version);
+
+            string extension = GetAndroidBuildFormat() == AndroidBuildFormat.AAB ? ".aab" : ".apk";
+            if (!fileName.EndsWith(extension, StringComparison.OrdinalIgnoreCase)) {
+                fileName += extension;
+            }
+            return Path.Combine(buildsFolder, fileName).NormalizePath();
+        }
+
+        internal static BuildOptimizerPipeline GetCurrentPipeline() {
+            string valueName = PackageTools.GetPrefsString(nameof(CurrentTargetPipeline), BuildOptimizerPipeline.CurrentActiveTarget.ToString());
+            return valueName.ToEnumOrDefault<BuildOptimizerPipeline>();
+        }
+
+        internal static AndroidBuildFormat GetAndroidBuildFormat() {
+            string valueName = PackageTools.GetPrefsString(nameof(CurrentAndroidBuildFormat), AndroidBuildFormat.APK.ToString());
+            return valueName.ToEnumOrDefault<AndroidBuildFormat>();
+        }
+
+        internal static bool GetAndroidDevelopmentBuild() {
+            return PackageTools.GetPrefsBool(nameof(CurrentAndroidDevelopmentBuild), false);
+        }
+
+        internal static bool GetAndroidScriptDebugging() {
+            return PackageTools.GetPrefsBool(nameof(CurrentAndroidScriptDebugging), false);
+        }
+
+        internal static bool GetAndroidCleanOutputBeforeBuild() {
+            return PackageTools.GetPrefsBool(nameof(CurrentAndroidCleanOutputBeforeBuild), true);
         }
 
         public BuildReport ExecuteBuildPipeline(BuildPlayerOptions buildPlayerOptions) {
@@ -379,6 +565,12 @@ namespace PrimeGames.SDK.Editor {
             SyncToggleVisual(NameFilesAsHashes);
             SyncToggleVisual(DataCaching);
             SyncToggleVisual(DecompressionFallback);
+        }
+
+        private void SyncAndroidToggleVisuals() {
+            SyncToggleVisual(AndroidDevelopmentBuild);
+            SyncToggleVisual(AndroidScriptDebugging);
+            SyncToggleVisual(AndroidCleanOutputBeforeBuild);
         }
 
         private static void SyncToggleVisual(Toggle toggle) {

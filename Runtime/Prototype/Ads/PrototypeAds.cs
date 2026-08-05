@@ -10,7 +10,10 @@ namespace PrimeGames.SDK.Prototype {
     [Provider(typeof(IAds))]
     public class PrototypeAds : CommonAds {
 
+        private const int SortingOrder = 32766;
+
         private readonly UIDocument document;
+        private readonly PanelSettings panelSettings;
 
         private readonly VisualElement shadowElement;
         private readonly VisualElement interstitialElement;
@@ -20,12 +23,36 @@ namespace PrimeGames.SDK.Prototype {
         private readonly Stack<Action<bool>> interstitialCloseCallbacks = new();
         private readonly Stack<Action<bool>> rewardedCloseCallbacks = new();
 
-        public PrototypeAds(IEventAggregator eventAggregator) : base(eventAggregator) {
+        public PrototypeAds(PrototypeAds_Configuration configuration, IEventAggregator eventAggregator, ILanguageInfo languageInfo) : base(eventAggregator) {
+            ConfigureCountdownStartDelay(configuration.AutoAdsStartDelaySeconds);
+            ConfigureCountdownSettings(
+                configuration.CountdownSeconds,
+                () => AutoAdsCountdownView.GetAdvertisementTitle(languageInfo?.Current ?? LanguageType.English),
+                () => configuration.GetCountdownMessage(languageInfo?.Current ?? LanguageType.English),
+                configuration.PauseDuringCountdown,
+                ToAdsIntervalSeconds(configuration.AutoAdsIntervalSeconds),
+                configuration.AutoAdsStartDelaySeconds
+            );
+            if (configuration.AutoAdsEnabled) {
+                ConfigureCountdownBeforeInterstitial(
+                    configuration.CountdownSeconds,
+                    () => AutoAdsCountdownView.GetAdvertisementTitle(languageInfo?.Current ?? LanguageType.English),
+                    () => configuration.GetCountdownMessage(languageInfo?.Current ?? LanguageType.English),
+                    configuration.PauseDuringCountdown,
+                    ToAdsIntervalSeconds(configuration.AutoAdsIntervalSeconds)
+                );
+            }
             GameObject prototypeDocumentPrefab = PrefabReference.Load("PrototypeDocument").Prefab;
             GameObject prototypeDocumentObject = GameObject.Instantiate(prototypeDocumentPrefab);
             prototypeDocumentObject.name = nameof(PrototypeAds);
             GameObject.DontDestroyOnLoad(prototypeDocumentObject);
             document = prototypeDocumentObject.GetComponent<UIDocument>();
+            if (document.panelSettings != null) {
+                panelSettings = UnityEngine.Object.Instantiate(document.panelSettings);
+                panelSettings.name = nameof(PrototypeAds) + "PanelSettings";
+                panelSettings.sortingOrder = SortingOrder;
+                document.panelSettings = panelSettings;
+            }
 
             VisualTreeAsset prototypeAdsAsset = VisualTreeReference.LoadVisualTree(nameof(PrototypeAds));
             VisualElement prototypeAdsElement = prototypeAdsAsset.Instantiate();
@@ -43,7 +70,7 @@ namespace PrimeGames.SDK.Prototype {
             prototypeAdsElement.pickingMode = PickingMode.Ignore;
 
             document.rootVisualElement.Add(prototypeAdsElement);
-            document.sortingOrder = 1000;
+            document.sortingOrder = SortingOrder;
 
             interstitialElement.Q<Button>(Naming.Close).RegisterCallback<ClickEvent>(clickEvent => {
                 RegisterShadowSource(Naming.Interstitial, false);
@@ -64,6 +91,17 @@ namespace PrimeGames.SDK.Prototype {
                 rewardedElement.Hide();
                 IsRewardedVisible = false;
             });
+
+            if (configuration.AutoAdsEnabled) {
+                StartAutoCountDownAds(
+                    configuration.AutoAdsStartDelaySeconds,
+                    configuration.AutoAdsIntervalSeconds,
+                    configuration.CountdownSeconds,
+                    () => AutoAdsCountdownView.GetAdvertisementTitle(languageInfo?.Current ?? LanguageType.English),
+                    () => configuration.GetCountdownMessage(languageInfo?.Current ?? LanguageType.English),
+                    configuration.PauseDuringCountdown
+                );
+            }
 
             SetInitialized();
         }
