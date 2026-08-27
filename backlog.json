@@ -1,6 +1,16 @@
 {
   "Releases": [
     {
+      "Version": "5.2.7",
+      "Title": "PrimeSDK update",
+      "Ru": [
+        "Исправлен мультидетект платформы при вбитых ключах Xiaomi."
+      ],
+      "En": [
+        "Fixed platform multi-detection when Xiaomi keys are set."
+      ]
+    },
+    {
       "Version": "5.2.6",
       "Title": "PrimeSDK update",
       "Ru": [
@@ -44,3 +54,5 @@
     }
   ]
 }
+
+
